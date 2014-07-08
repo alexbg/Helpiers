@@ -14,4 +14,7 @@ dist
 /RUNNING_PID
 /.settings
 .cache
+<<<<<<< HEAD
 .documents
+=======
+>>>>>>> ce4f08600c74696cb250372cb7017a4c75af4433
