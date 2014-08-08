@@ -1,0 +1,115 @@
+html {
+    position: relative;
+    max-width: 100%;
+}
+html, body {height: 100%}
+body{
+    padding-top: 70px;
+    font-family:Lucida Sans Unicode;
+    text-align: center;
+
+}
+
+body .welcomeContainer{
+    height: 400px;
+    background: -webkit-linear-gradient(#0F92C6, #26CFE2); /* For Safari 5.1 to 6.0 */
+    background: -o-linear-gradient(#0F92C6, #26CFE2); /* For Opera 11.1 to 12.0 */
+    background: -moz-linear-gradient(#0F92C6, #26CFE2); /* For Firefox 3.6 to 15 */
+    background: linear-gradient(#0F92C6, #26CFE2); /* Standard syntax (must be last) */
+    color: white; 
+    display: table;
+}
+body .middleVertical{
+    display: table-cell;
+    vertical-align: middle;
+}
+.bigFontSize{
+    font-size: 60px;
+}
+body .whatsHelpiers{
+    height: 300px;
+    display: table;
+    background-color: #FAFAFA;
+    border-bottom: 1px solid #A4A4A4;
+}
+.whatsHelpiers h1{
+    color: #0F92C6;
+}
+body .socialNetworksContainer{
+    height: 200px;
+    display: table;
+}
+.logo-redessociales{
+    width: 60px;
+}
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    /* Set the fixed height of the footer here */
+    height: 60px;
+    background-color: #f5f5f5;
+}
+.footerContainer {
+    width: auto;
+    max-width: 680px;
+    padding: 0 15px;
+}
+.footerContainer .text-muted {
+    margin: 20px 0;
+}
+.fullScreen{
+    height: 100%;
+    max-width: 100%;
+}
+.mainPartContainer{
+    height: 100%;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+textarea{
+    resize: none;
+}
+.profile{
+    height: 100%;
+    border-left: 2px solid #A4A4A4;
+}
+.formContainer{
+    width: 70%;
+    margin: 0 auto;
+}
+.formBox{
+    text-align: center;
+    padding: 20px;
+    border: 1px solid #A4A4A4;
+    border-radius: 10px;
+    background-color: #ffffff;
+}
+.border-inf{
+    border-bottom: 1px solid #A4A4A4;
+}
+.login-form{
+    padding: 10px;
+}
+.form-field-padding{
+    padding: 10px;
+}
+.long-field{
+    width: 70%;
+    min-width: 200px;
+}
+.light-grey-background{
+    background-color: #f5f5f5;
+}
+.editProfileContainerBox{
+    width: 60%;
+    min-width: 300px;
+    border: 1px solid #A4A4A4;
+    border-radius: 10px;
+    background-color: #ffffff;
+}
+.center-text{
+    text-align: center;
+}
+
+

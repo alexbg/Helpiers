@@ -1,0 +1,26 @@
+@(categoryList: List[models.Category])
+@main(null) {
+    <div class="row fullScreen">
+        <div class="col-md-8 mainPartContainer">
+            <h2>¿De qué quieres hablar hoy?</h2>
+            <div class="formContainer">
+                <form>
+                    <p>
+                        <textarea class="form-control" rows="3"></textarea>
+                    </p>
+                    <select class="form-control">
+                        @for(category <- categoryList){
+                            <option>@category.getCategoryName()</option>
+                        }
+                    </select>
+                    <p>
+                        <button type="submit">Entrar</button>
+                    </p>
+                </form>
+            </div>
+        </div>
+        <div class="col-md-4 profile">
+            <h2>Tu perfil</h2>
+        </div>
+    </div>
+}

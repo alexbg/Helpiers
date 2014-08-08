@@ -1,0 +1,22 @@
+@(form: Form[LoginController.NewUser])
+@accessTemplate{
+    @helper.form(routes.LoginController.singup) {
+        <div class="border-inf">
+            <h1>Regístrate en Helpiers</h1>
+        </div>
+        @if(form.hasGlobalErrors) {
+        <p class="error">
+            @form.globalError.message
+        </p>
+        }
+        <div class="form-field-padding">
+            <input class="long-field" type="email" name="email" placeholder="Email" value="@form("email").value">
+        </div>
+        <div class="form-field-padding">
+            <input class="long-field" type="password" name="password" placeholder="Password">
+        </div>
+        <div class="form-field-padding">
+            <button class="btn btn-primary" type="submit">Regístrate</button>
+        </div>
+    }
+}

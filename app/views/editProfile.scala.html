@@ -1,0 +1,35 @@
+@(form: Form[Application.Profile])
+@main(null){
+        <div class="mainPartContainer">
+            <div class="col-md-3 col-xs-1">
+                <!-- espacio para publicidad o lo que sea  -->
+            </div>
+            <div class="col-md-6 col-xs-10 formBox editProfileContainerBox">
+                <div class="border-inf"><h1>Edita tu perfil</h1></div>
+                @helper.form(routes.Application.UPSaveChanges) {
+                <div class="form-field-padding">
+                    Nombre de usuario: <input type="text" name="username">
+                </div>
+                <div class="form-field-padding">
+                    breve descripción sobre tí mismo:
+                    </br> <textarea class="form-control" rows="3" name="userDescription"></textarea>
+                </div>
+                <div class="form-field-padding">
+                    Fecha de nacimiento: <input type="date" name="bornDate"><br/>
+                </div>
+                <select class="form-control" name="sex">
+                    <option value="MALE">Masculino</option>
+                    <option value="FEMALE">Femenino</option>
+                    <option value="UNKNOWN">No definir</option>
+                </select>
+                <div class="form-field-padding">
+                    <button class="btn btn-primary" type="submit">Guardar</button>
+                </div>
+                }
+            </div>
+            <div class="col-md-3 col-xs-1">
+                <!-- espacio para publicidad o lo que sea  -->
+            </div>
+        </div>
+
+}

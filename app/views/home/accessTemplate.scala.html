@@ -1,0 +1,33 @@
+@(contentCenterBox: Html)
+<!DOCTYPE html>
+<html lang="es-Es">
+    <head>
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+
+        <!-- Optional theme -->
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+
+        <!-- JQuery -->
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+        <!-- Latest compiled and minified JavaScript -->
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+        <!-- My Styles -->
+        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/styles.css")">
+
+        <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
+    </head>
+    <body class="light-grey-background">
+        <div class="col-md-3 col-xs-1">
+            <!-- espacio para publicidad o lo que sea  -->
+        </div>
+        <div class="col-md-6 col-xs-10 formBox">
+            @contentCenterBox
+        </div>
+        <div class="col-md-3 col-xs-1">
+            <!-- espacio para publicidad o lo que sea  -->
+        </div>
+    </body>
+</html>
