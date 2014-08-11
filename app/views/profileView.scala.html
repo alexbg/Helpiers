@@ -1,0 +1,18 @@
+@(user: UserConnected)
+
+<h2>Perfil</h2>
+@if(user.getUser().username!=null){
+<div>Nombre de usuario: @user.getUser().username</div>
+}
+@if(user.getUser().sex!=null){
+<div>Sexo: @user.getUser().sex.toString</div>
+}
+@if(user.getUser().bornDate!=null){
+<div>Fecha de nacimiento: @user.getUser().getStingBornDate()</div>
+}
+@if(user.getUser().userDescription !=null){
+<div>Descripción personal: @user.getUser().userDescription</div>
+}
+@if(user.getUser().registerDate!=null){
+<div>Fecha de registro: @user.getUser().getStingRegDate()</div>
+}

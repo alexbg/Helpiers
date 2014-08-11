@@ -5,7 +5,9 @@ import play.db.ebean.Model;
 import javax.persistence.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 public class User extends Model {
@@ -27,6 +29,8 @@ public class User extends Model {
     @OneToOne
     @JoinColumn(name = "TOPIC_ID")
     public Topic topic;
+
+    public List<Rating> RatingList;
 
 	public static Finder<Long,User> find = new Finder<Long,User>(Long.class, User.class);
 
@@ -65,7 +69,10 @@ public class User extends Model {
 		else return false;
 	}
 
-
+    //Método no comprobado aún
+    public ArrayList<Rating> getUserReputation(){
+        return new ArrayList<Rating>(Rating.find.where().eq("ID_USER", id).findList());
+    }
 	
 	
 	//**************************** GETTERS Y SETTERS
