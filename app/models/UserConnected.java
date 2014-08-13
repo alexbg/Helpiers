@@ -13,6 +13,12 @@ public class UserConnected {
 
     }
 
+    public UserConnected(User user, Topic topic, Category category) {
+        this.user = user;
+        this.topic = topic;
+        this.category = category;
+    }
+
     // ******************************** GETTERS AND SETTERS
     public User getUser() {
         return user;

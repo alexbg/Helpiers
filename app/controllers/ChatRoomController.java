@@ -1,13 +1,16 @@
 package controllers;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.stream.JsonReader;
 import models.Category;
 import models.Topic;
 import models.User;
+import models.UserConnected;
 import play.data.Form;
 import play.mvc.Controller;
 import play.mvc.Result;
 import com.google.gson.*;
+import play.mvc.WebSocket;
 import views.html.chatPrueba;
 import views.html.chatRoom;
 import views.html.index;
@@ -137,6 +140,44 @@ public class ChatRoomController extends Controller {
             }
         }
         return ok(chatPrueba.render(user.getUsername()));
+    }
+
+    public static WebSocket<JsonNode> webSocket() {
+        // session no se puede utilizar en le websocket, por eso obtengo la informacion aqui
+        // obligatoriamente tiene que ser final si se va a obtener el valor desde el webSocket
+        //final String email = session("email");
+
+        // Crear el userConnected
+
+        User user = User.getUserByEmail(session("email"));
+
+        Topic topic = user.getTopic();
+
+        //UserConnected userConnected = new UserConnected(user,);
+
+        return new WebSocket<JsonNode>() {
+
+            // Called when the Websocket Handshake is done.
+            public void onReady(WebSocket.In<JsonNode> in, WebSocket.Out<JsonNode> out) {
+                // Crear el userConnected y pasarlo al setuser
+                System.out.println("Se han dado la mano");
+                // inserto el usuario
+                //Chat.setUser(email,out,in);
+            }
+
+        };
+    }
+
+    // SOLO PARA PRUEBAS
+    public static Result prueba(){
+
+        User user = User.getUserByEmail(session("email"));
+        Topic topic = user.getTopic();
+        Category category = topic.getCategory();
+
+        UserConnected userConnected = new UserConnected(user,topic,category);
+
+        return ok(userConnected.getUser().getEmail());
     }
 
 }

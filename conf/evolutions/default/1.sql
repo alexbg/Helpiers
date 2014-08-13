@@ -4,39 +4,33 @@
 # --- !Ups
 
 create table category (
-  id                        bigint not null,
+  id                        bigint auto_increment not null,
   category_name             varchar(255),
-  creation_date             timestamp,
+  creation_date             datetime,
   constraint pk_category primary key (id))
 ;
 
 create table topic (
-  id                        bigint not null,
+  id                        bigint auto_increment not null,
   topic_text                varchar(255),
-  creation_date             timestamp,
+  creation_date             datetime,
   ID_CATEGORY               bigint not null,
   constraint pk_topic primary key (id))
 ;
 
 create table user (
-  id                        bigint not null,
+  id                        bigint auto_increment not null,
   email                     varchar(255),
   username                  varchar(255),
   password                  varchar(255),
   user_description          varchar(255),
   sex                       varchar(7),
-  born_date                 timestamp,
-  register_date             timestamp,
+  born_date                 datetime,
+  register_date             datetime,
   TOPIC_ID                  bigint,
   constraint ck_user_sex check (sex in ('MALE','FEMALE','UNKNOWN')),
   constraint pk_user primary key (id))
 ;
-
-create sequence category_seq;
-
-create sequence topic_seq;
-
-create sequence user_seq;
 
 alter table topic add constraint fk_topic_category_1 foreign key (ID_CATEGORY) references category (id) on delete restrict on update restrict;
 create index ix_topic_category_1 on topic (ID_CATEGORY);
@@ -47,19 +41,13 @@ create index ix_user_topic_2 on user (TOPIC_ID);
 
 # --- !Downs
 
-SET REFERENTIAL_INTEGRITY FALSE;
+SET FOREIGN_KEY_CHECKS=0;
 
-drop table if exists category;
+drop table category;
 
-drop table if exists topic;
+drop table topic;
 
-drop table if exists user;
+drop table user;
 
-SET REFERENTIAL_INTEGRITY TRUE;
-
-drop sequence if exists category_seq;
-
-drop sequence if exists topic_seq;
-
-drop sequence if exists user_seq;
+SET FOREIGN_KEY_CHECKS=1;
 
