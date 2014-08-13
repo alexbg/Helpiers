@@ -1,30 +1,35 @@
 @(name: String)
 
 @main(name) {
-    
-    <div class="page-header">
-        <h1>Welcome to the chat room <small>You are chatting as @name</small></h1>
-    </div>
-    
-    <div id="onError" class="alert-message error">
-        <p>
-            <strong>Oops!</strong> <span></span>
-        </p>
-    </div>
-    
-    <div id="onChat" class="row">
-        <div class="span10" id="main">
-            <div id="messages">
+    <div class="content">
+
+        <div class="page-header">
+            <h1>Welcome to the chat room <small>You are chatting as @name</small></h1>
+        </div>
+
+        <div id="onError" class="alert-message error">
+            <p>
+                <strong>Oops!</strong> <span>Hemos tenido un error</span>
+            </p>
+            <div class="errorChatImgContainer"><img src="http://i1149.photobucket.com/albums/o597/gerasalta/mono.jpg"></div>
+        </div>
+
+        <div id="onChat" class="row">
+            <div class="span10" id="main">
+                <div id="messages">
+                </div>
+                <textarea id="talk"></textarea>
             </div>
-            <textarea id="talk"></textarea>
+            <div class="span4">
+                <h2>Members</h2>
+                <ul id="members">
+                </ul>
+            </div>
         </div>
-        <div class="span4">
-            <h2>Members</h2>
-            <ul id="members">
-            </ul>
-        </div>
+
+        <script type="text/javascript" charset="utf-8" src="@routes.Application.chatRoomJs(name)"></script>
+
     </div>
-    
-    <script type="text/javascript" charset="utf-8" src="@routes.Application.chatRoomJs(name)"></script>
+
     
 }

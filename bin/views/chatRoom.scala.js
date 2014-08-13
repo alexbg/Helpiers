@@ -51,5 +51,4 @@ $(function() {
     $("#talk").keypress(handleReturnKey)
 
     chatSocket.onmessage = receiveEvent
-
 })

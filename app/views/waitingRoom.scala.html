@@ -1,23 +1,23 @@
-@(my_user: UserConnected)(other_user: UserConnected)
 @main(null){
     <div class="row fullScreen" id="waitingRoomContainer container">
         <div class="col-md-8 mainPartContainer">
             <ul id="userConnectedList">
-                @* como parámetro habría que pasar el Map de usuarios conectados, y aquí hacer un for para pintar  todos los usuarios
-                del Map. Cada usuario de la lista se representa en itemListTemplate y hay que pasarle su UserConnected
-                @for(user <- userConnectedMap){
-                    @itemListTemplate(user)
-                }
-                *@
-
+                <li class="itemList">
+                    <div class="row">
+                        <div class="col-xs-4">username</div>
+                        <div class="col-xs-4">Category</div>
+                        <div class="col-xs-3">puntuación total (Javi)</div>
+                    </div>
+                </li>
             </ul>
         </div>
         <div class="col-md-4 profile text-center">
-            @if(other_user != null){
-                @profileView(other_user);
-            }else{
-                @profileView(my_user);
-            }
+            <h2>Perfil</h2>
+            <div>Nombre de usuario:</div>
+            <div>Sexo:</div>
+            <div>Fecha de nacimiento:</div>
+            <div>Descripción personal:</div>
+            <div>Fecha de registro:</div>
         </div>
     </div>
 }

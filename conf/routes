@@ -12,6 +12,7 @@ POST    /singup                		     controllers.LoginController.singup()
 
 GET     /index                           controllers.ChatRoomController.index()
 POST    /index                           controllers.ChatRoomController.goToChatRoom()
+GET     /chatroom                        controllers.ChatRoomController.chat(name: String ?= null)
 GET     /profile                         controllers.Application.editUserProfile()
 POST    /profile                         controllers.Application.UPSaveChanges()
 GET     /logout                          controllers.Application.logout()

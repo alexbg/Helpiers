@@ -136,7 +136,12 @@ public class ChatRoomController extends Controller {
                 newTopic.getUser().save();
             }
         }
-        return ok(chatPrueba.render(user.getUsername()));
+        return redirect(routes.ChatRoomController.chat(user.getUsername())); //PARA IR AL CHAT
+
+    }
+
+    public static Result chat(String username){
+        return ok(chatPrueba.render(username));
     }
 
 }

@@ -1,0 +1,64 @@
+@(name: String)
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Helpiers</title>
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <!-- Optional theme -->
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+        <!-- JQuery -->
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <!-- Latest compiled and minified JavaScript -->
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
+        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/chat.css")">
+        <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
+    </head>
+    <body>
+        <div class="container">
+
+            <div class="content">
+                <div class="page-header center-text helpiers-font">
+                    <h1>Chat privado <small>You are chatting as @name</small></h1>
+                </div>
+
+                <div id="onError" class="alert-message error center-text">
+                    <p>
+                        <strong>Oops!</strong> <span>Hemos tenido un error</span>
+                    </p>
+                    <div class="errorChatImgContainer"><img src="http://i1149.photobucket.com/albums/o597/gerasalta/mono.jpg"></div>
+                </div>
+
+                <div id="onChat" class="row">
+                    <div class="span10 col-xs-8 chatBoxHeight" id="main">
+                        <div id="messages">
+                        </div>
+                        <textarea id="talk" class="inputBox"></textarea>
+                    </div>
+                    <div class="span4 col-xs-3 chatBoxHeight">
+                        <div class="chatVerticalSection">
+                            <h2>Participantes</h2>
+                            <ul id="members">
+                            </ul>
+                        </div>
+                        <div class="center-text chatVerticalSection">
+                            <h3>Es el turno de</h3>
+                            <p id="userTurn"><strong>Javi</strong></p>
+                        </div>
+                        <div class="center-text chatVerticalSection">
+                            <h3>Tiempo restante</h3>
+                            <p class="timer"><strong>5 minutos 36 segundos</strong></p>
+                        </div>
+                        <div class="center-text chatVerticalSection">
+                            <button type="button" class="btn btn-warning">Salir</button>
+                            <button type="button" class="btn btn-danger">Reportar</button>
+                        </div>
+                    </div>
+                </div>
+                <script type="text/javascript" charset="utf-8" src="@routes.Application.chatRoomJs(name)"></script>
+            </div>
+        </div>
+    </body>
+</html>
