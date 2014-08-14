@@ -127,5 +127,12 @@ textarea{
 .float_right{
     float:right;
 }
+.chatroomYourInfo{
+    min-height: 100px;
+    max-height: 200px;
+}
+.margin-bottom-20{
+    margin-bottom: 20px;
+}
 
 

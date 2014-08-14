@@ -4,6 +4,7 @@ import com.google.gson.stream.JsonReader;
 import models.Category;
 import models.Topic;
 import models.User;
+import models.UserConnected;
 import play.data.Form;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -11,6 +12,8 @@ import com.google.gson.*;
 import views.html.chatPrueba;
 import views.html.chatRoom;
 import views.html.index;
+import views.html.waitingRoom;
+
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.Date;
@@ -115,6 +118,7 @@ public class ChatRoomController extends Controller {
         Topic newTopic = null;
         Category category = null;
         User user = null;
+        UserConnected userConnected = null;
         System.out.println("ENTRA");
         if (topicForm.hasErrors()) {
             System.out.println("error en el formulario");
@@ -134,14 +138,17 @@ public class ChatRoomController extends Controller {
                 //guardo los cambios en usuario, ya que se le ha añadido un topic
                 newTopic.getUser().setTopic(newTopic);
                 newTopic.getUser().save();
+                //creo su UserConnected
+                //userConnected = new UserConnected(user, newTopic, category);
             }
         }
-        return redirect(routes.ChatRoomController.chat(user.getUsername())); //PARA IR AL CHAT
+        //return redirect(routes.ChatRoomController.chat(user.getUsername())); //PARA IR AL CHAT
+        return ok(waitingRoom.render(newTopic.getTopicText(), category.getCategoryName()));
 
     }
 
-    public static Result chat(String username){
-        return ok(chatPrueba.render(username));
+    public static Result chat(){
+        return ok(chatPrueba.render( User.getUserByEmail(session("email")).getUsername()));
     }
 
 }

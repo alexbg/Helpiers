@@ -8,13 +8,13 @@
                     <p>
                         <textarea class="form-control" rows="3" name="topicText"></textarea>
                     </p>
-                    <select class="form-control" name="categoryName">
+                    <select class="form-control margin-bottom-20" name="categoryName">
                         @for(category <- categoryList){
                             <option>@category.getCategoryName()</option>
                         }
                     </select>
                     <p>
-                        <button type="submit">Entrar</button>
+                        <button class="btn btn-primary" type="submit">Entrar</button>
                     </p>
                 }
             </div>

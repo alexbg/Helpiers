@@ -30,6 +30,7 @@ public class User extends Model {
     @JoinColumn(name = "TOPIC_ID")
     public Topic topic;
 
+
     public List<Rating> RatingList;
 
 	public static Finder<Long,User> find = new Finder<Long,User>(Long.class, User.class);
@@ -136,7 +137,6 @@ public class User extends Model {
     public void setTopic(Topic topic) {
         this.topic = topic;
     }
-
     public String getStingBornDate(){
         String result;
         DateFormat formatter = null;

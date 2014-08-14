@@ -1,8 +1,23 @@
+@(topic: String)(category: String)
 @main(null){
     <div class="row fullScreen" id="waitingRoomContainer container">
         <div class="col-md-8 mainPartContainer">
+            <div class="chatroomYourInfo border-inf row">
+                <div class="col-md-7 col-xs-12">
+                    <h4>Tu tema de conversación:</h4>
+                    <p>@topic</p>
+                </div>
+                <div class="col-md-3 col-xs-6 middleVertical">
+                    <p>
+                        <label>Categoría:</label><span>@category</span>
+                    </p>
+                </div>
+                <div class="col-md-2 col-xs-5 middleVertical">
+                    <button class="btn btn-primary">Editar</button>
+                </div>
+            </div>
             <ul id="userConnectedList">
-                <li class="itemList">
+                <li class="itemList border-inf">
                     <div class="row">
                         <div class="col-xs-4">username</div>
                         <div class="col-xs-4">Category</div>
@@ -18,6 +33,9 @@
             <div>Fecha de nacimiento:</div>
             <div>Descripción personal:</div>
             <div>Fecha de registro:</div>
+            <div>
+                <a href="/chat"><button class="btn btn-primary">Invitar!</button></a>
+            </div>
         </div>
     </div>
 }
