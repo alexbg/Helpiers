@@ -8,11 +8,13 @@ import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import models.UserConnected;
+import models.chat.InsertUser;
 import play.libs.Akka;
 import play.libs.F;
 import play.libs.Json;
 import play.mvc.WebSocket;
-
+import play.Logger;
 import com.fasterxml.jackson.databind.JsonNode;
 import scala.concurrent.Await;
 import scala.concurrent.duration.Duration;
@@ -26,7 +28,7 @@ public class Chat extends UntypedActor {
 
     // Donde se guardan los usuarios
     // Map<userConnect,WebSocket.Out<JsonNode>>
-    private static Map<String,WebSocket.Out<JsonNode>> users = new HashMap<String,WebSocket.Out<JsonNode>>();
+    private static Map<UserConnected,WebSocket.Out<JsonNode>> users = new HashMap<UserConnected,WebSocket.Out<JsonNode>>();
 
     // Mirar como hacer que no aparectan en la lista los usuarios que estan en conversaciones
 
@@ -43,14 +45,14 @@ public class Chat extends UntypedActor {
     private static ActorRef chatController = Akka.system().actorOf(Props.create(Chat.class), "chatController");
 
     // Inserta un usuario
-    public static boolean setUser(String email,WebSocket.Out<JsonNode> out,WebSocket.In<JsonNode> in){
+    public static boolean insertUser(UserConnected user,WebSocket.Out<JsonNode> out,WebSocket.In<JsonNode> in){
         //Chat.sendRequest("close");
-        return Chat.sendRequest(new Insert(email, out, in));
+        return Chat.sendRequest(new InsertUser(user, out, in));
 
     }
 
     // Obtiene los usuarios
-    public static String[] getUsers(){
+    /*public static String[] getUsers(){
 
         String[] users = new String[Chat.users.size()];
         int i = 0;
@@ -63,7 +65,7 @@ public class Chat extends UntypedActor {
 
         return users;
 
-    }
+    }*/
 
     // Envio una peticion y comprueba si hay errores en esa peticion
     private static boolean sendRequest(Object request){
@@ -90,29 +92,35 @@ public class Chat extends UntypedActor {
 
         if (message instanceof Insert) {
 
-            final Insert user = (Insert) message;
+            final InsertUser user = (InsertUser) message;
 
-            Chat.users.put(user.email, user.channel);
+            Chat.users.put(user.getUser(), user.getOut());
 
-            user.control.onMessage(new F.Callback<JsonNode>() {
+            // Evento que se ejecuta cuando recibe un mensaje
+            user.getIn().onMessage(new F.Callback<JsonNode>() {
                 @Override
                 public void invoke(JsonNode jsonNode) throws Throwable {
 
+
+
+
                 }
             });
-            // Muestro un mensaje en la consola de quien se ha desconectado
-            user.control.onClose(new F.Callback0() {
+
+            // Evento que se ejecuta cuando se cierra la conexion con el usuario
+            user.getIn().onClose(new F.Callback0() {
                 public void invoke() {
 
-                    System.out.println("El usuario:" + user.email + " se ha desconectado");
-                    close();
+                    System.out.println("El usuario:" + user.getUser().getUser() + " se ha desconectado");
+                    //close();
 
                 }
             });
 
-            if (!Chat.users.containsKey(user.email)) {
+            // SI por algun motivo no se ha guardado el usuario en el mapa, se guardara el error
+            if (!Chat.users.containsKey(user.getUser())) {
 
-               errors.setHasErrors(true);
+               errors.setMessage("The user has not been saved in the map");
 
             }
         }
@@ -159,7 +167,7 @@ public class Chat extends UntypedActor {
     static class Errors {
 
         private boolean hasErrors;
-
+        private String message;
 
         Errors(boolean hasErrors) {
 
@@ -178,6 +186,29 @@ public class Chat extends UntypedActor {
         public void setHasErrors(boolean has){
 
             this.hasErrors = has;
+
+        }
+
+        // Permite indicar que hay un error y guardar un mensaje
+        public void setErrors(String message){
+
+            this.hasErrors = true;
+            this.message = message;
+            Logger.error(message);
+
+        }
+
+        // Pone el mensaje del error que le pases como parametro
+        public void setMessage(String message){
+
+            this.message = message;
+
+        }
+
+        // Obtiene el mensaje del error
+        public String getMessage(){
+
+            return this.message;
 
         }
 

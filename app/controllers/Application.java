@@ -144,4 +144,5 @@ public class Application extends Controller {
         session().clear();
         return ok("Bye");
     }
+
 }

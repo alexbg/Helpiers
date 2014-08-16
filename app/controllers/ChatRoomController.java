@@ -2,6 +2,7 @@ package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.stream.JsonReader;
+import controllers.actors.Chat;
 import models.Category;
 import models.Topic;
 import models.User;
@@ -142,18 +143,19 @@ public class ChatRoomController extends Controller {
         return ok(chatPrueba.render(user.getUsername()));
     }
 
-    public static WebSocket<JsonNode> webSocket() {
+    public static WebSocket<JsonNode> socketRoom() {
         // session no se puede utilizar en le websocket, por eso obtengo la informacion aqui
         // obligatoriamente tiene que ser final si se va a obtener el valor desde el webSocket
         //final String email = session("email");
+        System.out.println("Ha entrado");
 
         // Crear el userConnected
 
         User user = User.getUserByEmail(session("email"));
-
         Topic topic = user.getTopic();
+        Category category = topic.getCategory();
 
-        //UserConnected userConnected = new UserConnected(user,);
+        final UserConnected userConnected = new UserConnected(user,topic,category);
 
         return new WebSocket<JsonNode>() {
 
@@ -162,7 +164,7 @@ public class ChatRoomController extends Controller {
                 // Crear el userConnected y pasarlo al setuser
                 System.out.println("Se han dado la mano");
                 // inserto el usuario
-                //Chat.setUser(email,out,in);
+                Chat.insertUser(userConnected,out,in);
             }
 
         };
@@ -178,6 +180,13 @@ public class ChatRoomController extends Controller {
         UserConnected userConnected = new UserConnected(user,topic,category);
 
         return ok(userConnected.getUser().getEmail());
+    }
+
+    // Obtienes el js waitingRoom
+    public static Result waiting(){
+
+        return ok(views.js.waitingRoom.render());
+
     }
 
 }
