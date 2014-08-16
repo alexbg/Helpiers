@@ -9,9 +9,13 @@ body{
     text-align: center;
 
 }
+body .helpiers_logo{
+    color: #009fe3;
+    height: 155px;
+}
 
 body .welcomeContainer{
-    height: 400px;
+    height: 200px;
     background: -webkit-linear-gradient(#0F92C6, #26CFE2); /* For Safari 5.1 to 6.0 */
     background: -o-linear-gradient(#0F92C6, #26CFE2); /* For Opera 11.1 to 12.0 */
     background: -moz-linear-gradient(#0F92C6, #26CFE2); /* For Firefox 3.6 to 15 */
@@ -24,7 +28,7 @@ body .middleVertical{
     vertical-align: middle;
 }
 .bigFontSize{
-    font-size: 60px;
+    font-size: 90px;
 }
 body .whatsHelpiers{
     height: 300px;
@@ -110,6 +114,25 @@ textarea{
 }
 .center-text{
     text-align: center;
+}
+.logo-md{
+    width: 50px;
+}
+.logo-lg{
+    width: 200px;
+}
+.float_left{
+    float: left;
+}
+.float_right{
+    float:right;
+}
+.chatroomYourInfo{
+    min-height: 100px;
+    max-height: 200px;
+}
+.margin-bottom-20{
+    margin-bottom: 20px;
 }
 
 

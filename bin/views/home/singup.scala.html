@@ -1,26 +1,22 @@
 @(form: Form[LoginController.NewUser])
-
-<html>
-    <head>
-        <title>Helpiers</title>
-    </head>
-    <body>
-        @helper.form(routes.LoginController.singup) {
-            <h1>Sing Up</h1>
-            @if(form.hasGlobalErrors) {
-                <p class="error">
-                    @form.globalError.message
-                </p>
-            }
-            <p>
-                <input type="email" name="email" placeholder="Email" value="@form("email").value">
-            </p>
-            <p>
-                <input type="password" name="password" placeholder="Password">
-            </p>
-            <p>
-                <button type="submit">Sing Up</button>
-            </p>
+@accessTemplate{
+    @helper.form(routes.LoginController.singup) {
+        <div class="border-inf">
+            <h1>Regístrate en Helpiers</h1>
+        </div>
+        @if(form.hasGlobalErrors) {
+        <p class="error">
+            @form.globalError.message
+        </p>
         }
-    </body>
-</html>
+        <div class="form-field-padding">
+            <input class="long-field" type="email" name="email" placeholder="Email" value="@form("email").value">
+        </div>
+        <div class="form-field-padding">
+            <input class="long-field" type="password" name="password" placeholder="Password">
+        </div>
+        <div class="form-field-padding">
+            <button class="btn btn-primary" type="submit">Regístrate</button>
+        </div>
+    }
+}

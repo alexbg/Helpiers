@@ -10,7 +10,9 @@ public class UserConnected {
     private Category category;
 
     public UserConnected(){
-
+        user = null;
+        topic = null;
+        category = null;
     }
 
     public UserConnected(User user, Topic topic, Category category) {

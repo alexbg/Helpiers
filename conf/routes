@@ -11,14 +11,16 @@ GET     /singup                		     controllers.LoginController.showSingup()
 POST    /singup                		     controllers.LoginController.singup()
 
 GET     /index                           controllers.ChatRoomController.index()
-POST    /index                           controllers.ChatRoomController.goToChatRoom()
+POST    /chatroom                        controllers.ChatRoomController.goToChatRoom()
+#GET     /chat                            controllers.ChatRoomController.chat(name: String ?= null)
+GET     /chat                            controllers.ChatRoomController.chat()
 GET     /profile                         controllers.Application.editUserProfile()
 POST    /profile                         controllers.Application.UPSaveChanges()
 GET     /logout                          controllers.Application.logout()
 GET     /room                            controllers.Application.chatRoom(name: String ?= null)
 GET     /room/chat                       controllers.Application.chat(name)
 GET     /assets/javascripts/chatroom.js  controllers.Application.chatRoomJs(name)
-GET     /prueba                          controllers.ChatRoomController.prueba()
+#GET     /prueba                          controllers.ChatRoomController.prueba()
 GET     /socketroom                      controllers.ChatRoomController.socketRoom()
 
 # Javascript

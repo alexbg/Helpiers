@@ -90,7 +90,7 @@ public class Chat extends UntypedActor {
         Errors errors = new Errors(false);
         // si el mensaje es insertar, entonces guarda el usuario en el map users
 
-        if (message instanceof Insert) {
+        if (message instanceof InsertUser) {
 
             final InsertUser user = (InsertUser) message;
 
@@ -101,6 +101,13 @@ public class Chat extends UntypedActor {
                 @Override
                 public void invoke(JsonNode jsonNode) throws Throwable {
 
+                    // Peticion de los usuarios
+                    System.out.println("Peticion recibida: " + jsonNode.get("type").asText());
+                    if(jsonNode.get("type").asText() == "getusers"){
+
+                        System.out.println("Obtencion de usuarios");
+
+                    }
 
 
 
@@ -111,7 +118,7 @@ public class Chat extends UntypedActor {
             user.getIn().onClose(new F.Callback0() {
                 public void invoke() {
 
-                    System.out.println("El usuario:" + user.getUser().getUser() + " se ha desconectado");
+                    System.out.println("El usuario:" + user.getUser().getUser().getUsername() + " se ha desconectado");
                     //close();
 
                 }

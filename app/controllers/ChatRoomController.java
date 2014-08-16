@@ -15,6 +15,8 @@ import play.mvc.WebSocket;
 import views.html.chatPrueba;
 import views.html.chatRoom;
 import views.html.index;
+import views.html.waitingRoom;
+
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.Date;
@@ -119,6 +121,7 @@ public class ChatRoomController extends Controller {
         Topic newTopic = null;
         Category category = null;
         User user = null;
+        UserConnected userConnected = null;
         System.out.println("ENTRA");
         if (topicForm.hasErrors()) {
             System.out.println("error en el formulario");
@@ -138,15 +141,25 @@ public class ChatRoomController extends Controller {
                 //guardo los cambios en usuario, ya que se le ha añadido un topic
                 newTopic.getUser().setTopic(newTopic);
                 newTopic.getUser().save();
+                //creo su UserConnected
+                //userConnected = new UserConnected(user, newTopic, category);
             }
         }
-        return ok(chatPrueba.render(user.getUsername()));
+        //return redirect(routes.ChatRoomController.chat(user.getUsername())); //PARA IR AL CHAT
+        return ok(waitingRoom.render(newTopic.getTopicText(), category.getCategoryName()));
+
     }
 
+    public static Result chat(){
+        return ok(chatPrueba.render( User.getUserByEmail(session("email")).getUsername()));
+    }
+
+    // Prepara y controla el webSocket de waitingRoom
     public static WebSocket<JsonNode> socketRoom() {
         // session no se puede utilizar en le websocket, por eso obtengo la informacion aqui
         // obligatoriamente tiene que ser final si se va a obtener el valor desde el webSocket
         //final String email = session("email");
+
         System.out.println("Ha entrado");
 
         // Crear el userConnected
@@ -171,7 +184,7 @@ public class ChatRoomController extends Controller {
     }
 
     // SOLO PARA PRUEBAS
-    public static Result prueba(){
+    /*public static Result prueba(){
 
         User user = User.getUserByEmail(session("email"));
         Topic topic = user.getTopic();
@@ -180,7 +193,7 @@ public class ChatRoomController extends Controller {
         UserConnected userConnected = new UserConnected(user,topic,category);
 
         return ok(userConnected.getUser().getEmail());
-    }
+    }*/
 
     // Obtienes el js waitingRoom
     public static Result waiting(){

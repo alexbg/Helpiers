@@ -39,7 +39,7 @@ public class Topic extends Model{
         this.topicText = topicText;
     }
     public Date getCreationDate() {
-        return creationDate;
+        return this.creationDate;
     }
     public void setCreationDate(Date creationDate) {
         this.creationDate = creationDate;
