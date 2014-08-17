@@ -143,10 +143,13 @@ public class ChatRoomController extends Controller {
                 newTopic.getUser().save();
                 //creo su UserConnected
                 //userConnected = new UserConnected(user, newTopic, category);
+
+                // Obtengo los usuarios conectados
             }
         }
         //return redirect(routes.ChatRoomController.chat(user.getUsername())); //PARA IR AL CHAT
-        return ok(waitingRoom.render(newTopic.getTopicText(), category.getCategoryName()));
+        //System.out.println(Chat.getUsers());
+        return ok(waitingRoom.render(newTopic.getTopicText(), category.getCategoryName(),Chat.getUsers()));
 
     }
 

@@ -1,5 +1,6 @@
 package controllers.actors;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -7,7 +8,10 @@ import java.util.concurrent.TimeUnit;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import models.User;
 import models.UserConnected;
 import models.chat.InsertUser;
 import play.libs.Akka;
@@ -37,10 +41,8 @@ public class Chat extends UntypedActor {
     // Map<userCreated,userCreated>
     private static Map<String,String> rooms = new HashMap<String,String>();
 
-    // Las peticiones estan en la base de datos
 
-
-    // Actor que manejara los usuarios
+    // Actor que manejara los usuario, los crearra, eliminara, y manejara las peticiones de chat y mensajes*
 
     private static ActorRef chatController = Akka.system().actorOf(Props.create(Chat.class), "chatController");
 
@@ -51,22 +53,6 @@ public class Chat extends UntypedActor {
 
     }
 
-    // Obtiene los usuarios
-    /*public static String[] getUsers(){
-
-        String[] users = new String[Chat.users.size()];
-        int i = 0;
-        for ( String key : Chat.users.keySet() ) {
-
-            users[i] = key;
-
-            i++;
-        }
-
-        return users;
-
-    }*/
-
     // Envio una peticion y comprueba si hay errores en esa peticion
     private static boolean sendRequest(Object request){
 
@@ -74,6 +60,7 @@ public class Chat extends UntypedActor {
 
         try{
             errors = (Errors)Await.result(ask(chatController, request, 1000), Duration.create(1, TimeUnit.SECONDS));
+            // Meter la informacion en el log si hay algun error e informar al usuario del error
         }catch(Exception e){
 
             errors = new Errors(true);
@@ -85,32 +72,36 @@ public class Chat extends UntypedActor {
     }
 
     @Override
-    public void onReceive(Object message) throws Exception {
+    public void onReceive(Object request) throws Exception {
 
         Errors errors = new Errors(false);
         // si el mensaje es insertar, entonces guarda el usuario en el map users
 
-        if (message instanceof InsertUser) {
+        if (request instanceof InsertUser) {
 
-            final InsertUser user = (InsertUser) message;
+            final InsertUser user = (InsertUser) request;
 
-            Chat.users.put(user.getUser(), user.getOut());
+            // Meto el user connected en el mapa junto a su out
+            Chat.users.put(user.getUserConnected(), user.getOut());
 
             // Evento que se ejecuta cuando recibe un mensaje
             user.getIn().onMessage(new F.Callback<JsonNode>() {
                 @Override
                 public void invoke(JsonNode jsonNode) throws Throwable {
 
-                    // Peticion de los usuarios
-                    System.out.println("Peticion recibida: " + jsonNode.get("type").asText());
-                    if(jsonNode.get("type").asText() == "getusers"){
+
+                    // Realiza la peticion de obtener usuarios
+                    if(jsonNode.get("type").asText().equals("getusers")){
 
                         System.out.println("Obtencion de usuarios");
 
+                        // obtengo una lista con los usuarios conectados
+                        ObjectNode users = getUsersInJson();
+
+                        // obtengo el out del usuario al que enviare la lista, y se la envio con write
+                        user.getOut().write(users);
+
                     }
-
-
-
                 }
             });
 
@@ -118,14 +109,16 @@ public class Chat extends UntypedActor {
             user.getIn().onClose(new F.Callback0() {
                 public void invoke() {
 
-                    System.out.println("El usuario:" + user.getUser().getUser().getUsername() + " se ha desconectado");
-                    //close();
+                    System.out.println("El usuario:" + user.getUserConnected().getUser().getUsername() + " se ha desconectado");
+
+                    // Eliminar usuario del map
+                    Chat.users.remove(user.getUserConnected());
 
                 }
             });
 
             // SI por algun motivo no se ha guardado el usuario en el mapa, se guardara el error
-            if (!Chat.users.containsKey(user.getUser())) {
+            if (!Chat.users.containsKey(user.getUserConnected())) {
 
                errors.setMessage("The user has not been saved in the map");
 
@@ -133,7 +126,7 @@ public class Chat extends UntypedActor {
         }
 
         // borra el usuario y envia un mensaje a todos los usuarios para que lo borren de su lista
-        if("close".equals(message)){
+        if("close".equals(request)){
 
             System.out.println("close on receive");
 
@@ -146,29 +139,59 @@ public class Chat extends UntypedActor {
 
     }
 
-    // Clase que describe la informacion basica del usuario
-    static class Insert{
+    // Obtengo todos los usuarios en json
+    private ObjectNode getUsersInJson(){
 
-        String email;//meter UserConected)
-        WebSocket.Out<JsonNode> channel;
-        WebSocket.In<JsonNode> control;
 
-        Insert(String email, WebSocket.Out<JsonNode> channel,WebSocket.In<JsonNode> control){
+        ObjectNode list = Json.newObject();
 
-            this.email = email;
-            this.channel = channel;
-            this.control = control;
+        for(UserConnected users: Chat.users.keySet()){
+
+            ObjectNode user = Json.newObject();
+
+            user.put("username",users.getUser().getUsername());
+            user.put("category",users.getCategory().getCategoryName());
+            list.put(users.getUser().getEmail(),user);
+
+            System.out.println(list);
 
         }
 
-    }
-
-    static class GetData{
-
-        //Chat.users;
-
+        return list;
 
     }
+
+    // Obtengo todos los userConnected del map users
+    public static ArrayList<UserConnected> getUsers(){
+
+        ArrayList listUsers = new ArrayList<UserConnected>();
+
+        for(UserConnected user: Chat.users.keySet()){
+
+            listUsers.add(user);
+
+        }
+
+        System.out.println(Chat.users.size());
+
+        return listUsers;
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // Permite detectar que error se ha producido
     static class Errors {
@@ -218,24 +241,6 @@ public class Chat extends UntypedActor {
             return this.message;
 
         }
-
-    }
-
-    private boolean close(){
-
-        return Chat.sendRequest("close");
-
-    }
-
-    private boolean findUser(String id){
-
-        return Chat.sendRequest(id);
-
-    }
-
-    private boolean sendAll(){
-
-        return true;
 
     }
 }

@@ -1,4 +1,4 @@
-@(topic: String)(category: String)
+@(topic: String)(category: String)(users: ArrayList[UserConnected])
 @main(null){
     <div class="row fullScreen" id="waitingRoomContainer container">
         <div class="col-md-8 mainPartContainer">
@@ -24,6 +24,16 @@
                         <div class="col-xs-3">puntuación total (Javi)</div>
                     </div>
                 </li>
+                @for(user <- users) {
+                    <li class="itemList">
+                        <div class="row">
+                            <div class="col-xs-4">@user.getUser().getUsername()</div>
+                            <div class="col-xs-4">@user.getCategory().getCategoryName()</div>
+                            <div class="col-xs-3">puntuación total (Javi)</div>
+                        </div>
+                    </li>
+                }
+
             </ul>
         </div>
         <div class="col-md-4 profile text-center">

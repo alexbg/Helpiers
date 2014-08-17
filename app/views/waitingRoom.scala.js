@@ -10,6 +10,19 @@ $('document').ready(function(){
 
          chatSocket.send(JSON.stringify({'type':'getusers'}));
 
+         chatSocket.onmessage = function(event){
+
+             console.log('mensaje recibido');
+             console.log(event.data);
+             var list = $('#userConnectedList li');
+             /*jQuery.each(JSON.parse(event.data),function(index,element){
+
+                list.after("<Strong>ESTO ES UNA PRUEBA</strong>");
+
+             });*/
+
+         }
+
     };
 
     console.log(chatSocket.readyState);

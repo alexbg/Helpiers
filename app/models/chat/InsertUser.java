@@ -10,13 +10,13 @@ import org.jboss.netty.handler.codec.http.websocketx.WebSocket00FrameEncoder;
  */
 public class InsertUser {
 
-    private UserConnected user;
+    private UserConnected userConnected;
     private WebSocket.Out<JsonNode> out;
     private WebSocket.In<JsonNode> in;
 
     public InsertUser(UserConnected user, WebSocket.Out<JsonNode> out, WebSocket.In<JsonNode> in){
 
-        this.user = user;
+        this.userConnected = user;
         this.out = out;
         this.in = in;
 
@@ -38,11 +38,11 @@ public class InsertUser {
         this.out = out;
     }
 
-    public UserConnected getUser() {
-        return user;
+    public UserConnected getUserConnected() {
+        return userConnected;
     }
 
     public void setUser(UserConnected user) {
-        this.user = user;
+        this.userConnected = user;
     }
 }
