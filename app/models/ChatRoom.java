@@ -26,6 +26,9 @@ public class ChatRoom extends UntypedActor {
     
     // Default room.
     static ActorRef defaultRoom = Akka.system().actorOf(Props.create(ChatRoom.class));
+
+    // Map de conversaciones activas, asocia los UserConnected entre ellos
+    static Map<UserConnected, UserConnected> activeConversations = new HashMap<UserConnected, UserConnected>();
     
     // Create a Robot, just for fun.
     static {
@@ -45,10 +48,29 @@ public class ChatRoom extends UntypedActor {
             // For each event received on the socket,
             in.onMessage(new Callback<JsonNode>() {
                public void invoke(JsonNode event) {
-                   
-                   // Send a Talk message to the room.
-                   defaultRoom.tell(new Talk(username, event.get("text").asText()), null);
-                   
+                   String type = null;
+                   String value = null;
+                   //analizar el mensaje recibido y actuar según el tipo que sea
+                   type = event.get("type").asText();
+                   if(type!=null && type.equals("chatRequest")){
+                       value = event.get("value").asText();
+                       if(value != null && value.equals("invite")){
+                           //crear un chatRequest
+
+                       }else if(value != null && value.equals("rejected")){
+
+                       }else if(value != null && value.equals("accepted")){
+                           //se pasa al chat privado
+                       }
+                   }else if(type!=null && type.equals("control")){
+
+                   }else if(type!=null && type.equals("message")){
+
+                   }else{
+                       // Send a Talk message to the room.
+                       defaultRoom.tell(new Talk(username, event.get("text").asText()), null);
+                   }
+
                } 
             });
             

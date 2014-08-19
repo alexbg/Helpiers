@@ -7,11 +7,11 @@ import models.UserConnected;
  */
 public class ChatRequest {
 
-    UserConnected user;
+    UserConnected targetUser;
 
-    ChatRequest(){
+    ChatRequest(UserConnected user){
 
-        this.user = user;
+        this.targetUser = user;
 
     }
 
