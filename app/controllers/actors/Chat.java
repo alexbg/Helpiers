@@ -113,7 +113,7 @@ public class Chat extends UntypedActor {
                     // Obtengo la informacion del usuario
                     if(jsonNode.get("type").asText().equals("getInfoUser")){
 
-                        UserConnected info = getUserInfoByUserName(jsonNode.get("username").asText());
+                        UserConnected info = getUserConnectedByUserName(jsonNode.get("username").asText());
                         System.out.println(info);
                         // SI hay UserConnected, genero el mensaje
                         if(info != null){
@@ -244,7 +244,7 @@ public class Chat extends UntypedActor {
     }
 
     // Obtiene un UserConnected mediante el username
-    private UserConnected getUserInfoByUserName(String userName){
+    public static UserConnected getUserConnectedByUserName(String userName){
 
         UserConnected info = null;
 

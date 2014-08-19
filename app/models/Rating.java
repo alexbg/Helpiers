@@ -8,6 +8,7 @@ import java.util.Date;
 /**
  * Created by javi on 11/08/14.
  */
+
 public class Rating extends Model{
     @Id
     @GeneratedValue
@@ -15,7 +16,9 @@ public class Rating extends Model{
     @ManyToOne(fetch= FetchType.LAZY,optional=false)
     @JoinColumn(name="ID_USER")
     private User user;
-    //Meter CHATID
+    @OneToOne
+    @JoinColumn(name = "CHAT_ID")
+    private Chat chat;
     @ManyToOne(fetch=FetchType.LAZY,optional=false)
     @JoinColumn(name="ID_CATEGORY")
     private Category category;

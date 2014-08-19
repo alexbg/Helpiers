@@ -1,5 +1,6 @@
 package models;
 
+import controllers.actors.Chat;
 import play.mvc.*;
 import play.libs.*;
 import play.libs.F.*;
@@ -50,12 +51,15 @@ public class ChatRoom extends UntypedActor {
                public void invoke(JsonNode event) {
                    String type = null;
                    String value = null;
+                   UserConnected host = null;
+                   UserConnected owner = null;
                    //analizar el mensaje recibido y actuar según el tipo que sea
                    type = event.get("type").asText();
                    if(type!=null && type.equals("chatRequest")){
                        value = event.get("value").asText();
                        if(value != null && value.equals("invite")){
                            //crear un chatRequest
+                           host = Chat.getUserConnectedByUserName(event.get("targetUser").asText());
 
                        }else if(value != null && value.equals("rejected")){
 
