@@ -34,6 +34,10 @@ public class Chat extends UntypedActor {
     // Map<userConnect,WebSocket.Out<JsonNode>>
     private static Map<UserConnected,WebSocket.Out<JsonNode>> users = new HashMap<UserConnected,WebSocket.Out<JsonNode>>();
 
+    public Map<UserConnected,WebSocket.Out<JsonNode>> getUserWS(){
+        return users;
+    }
+
     // Mirar como hacer que no aparectan en la lista los usuarios que estan en conversaciones
 
 
@@ -89,7 +93,7 @@ public class Chat extends UntypedActor {
             ObjectNode message = Json.newObject();
 
             // Le digo que es un mensaje de tipo open
-            message.put("type","open");
+            message.put("type", "open");
 
             // Envio el mensaje
 
