@@ -20,13 +20,13 @@ import play.libs.Json;
 import play.mvc.WebSocket;
 import play.Logger;
 import com.fasterxml.jackson.databind.JsonNode;
+import play.twirl.api.Html;
 import scala.concurrent.Await;
 import scala.concurrent.duration.Duration;
+import views.html.partial.infoUser;
+import views.html.partial.listUsers;
 
 import static akka.pattern.Patterns.ask;
-
-
-
 
 public class Chat extends UntypedActor {
 
@@ -81,6 +81,23 @@ public class Chat extends UntypedActor {
 
             final InsertUser user = (InsertUser) request;
 
+            // Envio el usuario conectado a todos los usuarios
+
+            Html html = listUsers.render(user.getUserConnected());
+
+            //Preparo el mensaje a enviar
+            ObjectNode message = Json.newObject();
+
+            // Le digo que es un mensaje de tipo open
+            message.put("type","open");
+
+            // Envio el mensaje
+
+            message.put("html",html.toString());
+
+            // Envio el mensaje a todos los usuarios exepto a si mismo
+            sendMessageToAll(message);
+
             // Meto el user connected en el mapa junto a su out
             Chat.users.put(user.getUserConnected(), user.getOut());
 
@@ -89,18 +106,32 @@ public class Chat extends UntypedActor {
                 @Override
                 public void invoke(JsonNode jsonNode) throws Throwable {
 
+                    // Obtengo la informacion del usuario
+                    if(jsonNode.get("type").asText().equals("getInfoUser")){
 
-                    // Realiza la peticion de obtener usuarios
-                    if(jsonNode.get("type").asText().equals("getusers")){
+                        UserConnected info = getUserInfoByUserName(jsonNode.get("username").asText());
+                        System.out.println(info);
+                        // SI hay UserConnected, genero el mensaje
+                        if(info != null){
 
-                        System.out.println("Obtencion de usuarios");
+                            /*
+                            message.put("username",info.getUser().getUsername());
+                            message.put("sex",info.getUser().getSex().toString());
+                            message.put("borndate",info.getUser().getStingBornDate());
+                            message.put("description",info.getUser().getUserDescription());
+                            message.put("regdate",info.getUser().getStingRegDate());*/
 
-                        // obtengo una lista con los usuarios conectados
-                        ObjectNode users = getUsersInJson();
+                            Html infoHtml = infoUser.render(info);
 
-                        // obtengo el out del usuario al que enviare la lista, y se la envio con write
-                        user.getOut().write(users);
+                            ObjectNode message = Json.newObject();
 
+                            message.put("type","infoUser");
+                            message.put("html",infoHtml.toString());
+
+                            // Envio el mensaje
+                            user.getOut().write(message);
+
+                        }
                     }
                 }
             });
@@ -111,13 +142,22 @@ public class Chat extends UntypedActor {
 
                     System.out.println("El usuario:" + user.getUserConnected().getUser().getUsername() + " se ha desconectado");
 
+                    // Preparo la informacion a enviar a los usuarios
+
+                    ObjectNode message = Json.newObject();
+                    message.put("type", "close");
+                    message.put("id", user.getUserConnected().getUser().getUsername());
+
                     // Eliminar usuario del map
                     Chat.users.remove(user.getUserConnected());
+
+                    //Informo a los usuarios de que se va a eliminar el usuario
+                    sendMessageToAll(message);
 
                 }
             });
 
-            // SI por algun motivo no se ha guardado el usuario en el mapa, se guardara el error
+            // Si por algun motivo no se ha guardado el usuario en el mapa, se guardara el error
             if (!Chat.users.containsKey(user.getUserConnected())) {
 
                errors.setMessage("The user has not been saved in the map");
@@ -129,7 +169,6 @@ public class Chat extends UntypedActor {
         if("close".equals(request)){
 
             System.out.println("close on receive");
-
 
         }
 
@@ -178,11 +217,45 @@ public class Chat extends UntypedActor {
 
     }
 
+    private JsonNode getUser(UserConnected user){
 
+        ObjectNode data = Json.newObject();
 
+        data.put("username",user.getUser().getUsername());
+        data.put("category",user.getCategory().getCategoryName());
 
+        return data;
 
+    }
 
+    // Envia un mensaje a todos los usuarios. El mensaje se pasa como parametro
+    private void sendMessageToAll(ObjectNode message){
+
+        for(WebSocket.Out<JsonNode> out: Chat.users.values()){
+
+            out.write(message);
+
+        }
+
+    }
+
+    // Obtiene un UserConnected mediante el username
+    private UserConnected getUserInfoByUserName(String userName){
+
+        UserConnected info = null;
+
+        for(UserConnected user: Chat.users.keySet()){
+
+            if(user.equals(userName)){
+
+                info = user;
+
+            }
+
+        }
+
+        return info;
+    }
 
 
 

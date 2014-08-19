@@ -22,6 +22,13 @@ public class InsertUser {
 
     }
 
+    public InsertUser(UserConnected user, WebSocket.Out<JsonNode> out){
+
+        this.userConnected = user;
+        this.out = out;
+
+    }
+
     public WebSocket.In<JsonNode> getIn() {
         return in;
     }
