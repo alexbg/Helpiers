@@ -1,0 +1,8 @@
+@(user: UserConnected)
+<li class="itemList" id=@user.getUser().getUsername()>
+    <div class="row">
+        <div class="col-xs-4">@user.getUser().getUsername()</div>
+        <div class="col-xs-4">@user.getCategory().getCategoryName()</div>
+        <div class="col-xs-3">puntuación total (Javi)</div>
+    </div>
+</li>

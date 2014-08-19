@@ -148,7 +148,7 @@ public class ChatRoomController extends Controller {
             }
         }
         //return redirect(routes.ChatRoomController.chat(user.getUsername())); //PARA IR AL CHAT
-        //System.out.println(Chat.getUsers());
+        // PENSAR EN OBTENER LOS USUARIOS POR getUsers MEDIANTE AKKA CON UN ACTOR
         return ok(waitingRoom.render(newTopic.getTopicText(), category.getCategoryName(),Chat.getUsers()));
 
     }

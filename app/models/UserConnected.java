@@ -21,6 +21,23 @@ public class UserConnected {
         this.category = category;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+
+        String that = (String) o;
+
+        if (!user.getUsername().equals(that)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return user.hashCode();
+    }
+
     // ******************************** GETTERS AND SETTERS
     public User getUser() {
         return user;
