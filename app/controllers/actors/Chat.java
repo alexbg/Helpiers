@@ -110,16 +110,9 @@ public class Chat extends UntypedActor {
                     if(jsonNode.get("type").asText().equals("getInfoUser")){
 
                         UserConnected info = getUserInfoByUserName(jsonNode.get("username").asText());
-                        System.out.println(info);
+                        System.out.println("Preparando informacion del usuario...");
                         // SI hay UserConnected, genero el mensaje
                         if(info != null){
-
-                            /*
-                            message.put("username",info.getUser().getUsername());
-                            message.put("sex",info.getUser().getSex().toString());
-                            message.put("borndate",info.getUser().getStingBornDate());
-                            message.put("description",info.getUser().getUserDescription());
-                            message.put("regdate",info.getUser().getStingRegDate());*/
 
                             Html infoHtml = infoUser.render(info);
 
@@ -130,6 +123,7 @@ public class Chat extends UntypedActor {
 
                             // Envio el mensaje
                             user.getOut().write(message);
+                            System.out.println("Informacion enviada");
 
                         }
                     }
@@ -256,6 +250,27 @@ public class Chat extends UntypedActor {
 
         return info;
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

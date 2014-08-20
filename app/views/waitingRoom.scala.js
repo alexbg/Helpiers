@@ -18,7 +18,7 @@ $('document').ready(function(){
             // Elimino un usuario que se desconecta
             if(message.type === 'close'){
                 console.log(message.id);
-                $('#' + message.id).off();
+                //$('#' + message.id).off();
                 $('#' + message.id).remove();
             }
 
@@ -35,7 +35,7 @@ $('document').ready(function(){
 
             if(message.type === 'infoUser'){
 
-                //console.log('.profile');
+                console.log(message);
                 $('.profile').html(message.html);
 
             }
@@ -54,9 +54,12 @@ $('document').ready(function(){
 
         $('#userConnectedList li').on('click',function(event,selector){
 
+            alert('funciona el evento');
 
             var div = $(event)[0].target;
             var id = $(div).closest('li').attr('id');
+
+            console.log(id);
 
             chatSocket.send(JSON.stringify({'type':'getInfoUser','username':id}));
 

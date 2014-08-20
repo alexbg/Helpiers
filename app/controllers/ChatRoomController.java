@@ -171,6 +171,8 @@ public class ChatRoomController extends Controller {
         Topic topic = user.getTopic();
         Category category = topic.getCategory();
 
+        System.out.println(user.getUserDescription());
+
         final UserConnected userConnected = new UserConnected(user,topic,category);
 
         return new WebSocket<JsonNode>() {
