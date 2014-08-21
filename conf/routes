@@ -23,6 +23,7 @@ GET     /assets/javascripts/chatroom.js  controllers.Application.chatRoomJs(name
 #GET     /prueba                          controllers.ChatRoomController.prueba()
 GET     /socketroom                      controllers.ChatRoomController.socketRoom()
 
+
 # Javascript
 GET     /waiting                         controllers.ChatRoomController.waiting()
 

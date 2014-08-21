@@ -141,10 +141,7 @@ public class ChatRoomController extends Controller {
                 //guardo los cambios en usuario, ya que se le ha añadido un topic
                 newTopic.getUser().setTopic(newTopic);
                 newTopic.getUser().save();
-                //creo su UserConnected
-                //userConnected = new UserConnected(user, newTopic, category);
 
-                // Obtengo los usuarios conectados
             }
         }
         //return redirect(routes.ChatRoomController.chat(user.getUsername())); //PARA IR AL CHAT

@@ -1,14 +1,13 @@
 @(user: UserConnected)
 @if(user != null){
+<div id="infoUser" name="@user.getUser().getUsername()">
     <h2>Perfil</h2>
     <div>Nombre de usuario: @user.getUser().getUsername()</div>
     <div>Sexo: @user.getUser().getSex().toString()</div>
     <div>Fecha de nacimiento: @user.getUser().getStingBornDate()</div>
     <div>Descripción personal: @user.getUser().getUserDescription()</div>
     <div>Fecha de registro: @user.getUser().getStingRegDate()</div>
-    <div>
-        <a href="/chat"><button class="btn btn-primary">Invitar!</button></a>
-    </div>
+</div>
 } else {
 
     <h2>Informacion no disponible</h2>

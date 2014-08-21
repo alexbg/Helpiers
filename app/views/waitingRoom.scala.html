@@ -37,17 +37,19 @@
             </ul>
         </div>
         <div class="col-md-4 profile text-center">
-            <h2>Perfil</h2>
-            <div>Nombre de usuario:</div>
-            <div>Sexo:</div>
-            <div>Fecha de nacimiento:</div>
-            <div>Descripción personal:</div>
-            <div>Fecha de registro:</div>
+            <div id="infouser">
+                <h2>Perfil</h2>
+                <div>Nombre de usuario:</div>
+                <div>Sexo:</div>
+                <div>Fecha de nacimiento:</div>
+                <div>Descripción personal:</div>
+                <div>Fecha de registro:</div>
+            </div>
             <div>
-                <a href="/chat"><button class="btn btn-primary">Invitar!</button></a>
+                <button class="btn btn-primary" id="invite">Invitar!</button>
             </div>
         </div>
     </div>
 }
-
+<!--<script src="https://cdn.socket.io/socket.io-1.0.6.js"></script>-->
 <script type="text/javascript" charset="utf-8" src="@routes.ChatRoomController.waiting()"></script>
