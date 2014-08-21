@@ -119,6 +119,9 @@ public class Chat extends UntypedActor {
 
                         System.out.println("Peticion chatRequest recibida");
 
+                        // Hace la peticion mediante un actor para realizar y enviar la peticion
+                        Chat.sendRequest(new ChatRequest(user.getUserConnected(),jsonNode.get("username").asText()));
+
                     }
                 }
             });
@@ -185,7 +188,25 @@ public class Chat extends UntypedActor {
 
             ChatRequest chatRequest = (ChatRequest)request;
 
+            // Obtengo el UserConnected del usuario alq ue hayq uen enviarle la informacion
+            UserConnected userToSendInvite = this.getUserInfoByUserName(chatRequest.getGuest());
 
+            // Obtengo el webSocket out del usuario al que hay que enviarle la informacion
+            WebSocket.Out<JsonNode> out = Chat.users.get(userToSendInvite);
+
+            // Si el usuario existe, preparo el envio
+            if(userToSendInvite != null){
+
+                ObjectNode message = Json.newObject();
+
+                message.put("type","chatRequest");
+                // Envio el username del que ha realizado la peticion
+                message.put("username", chatRequest.getUser().getUser().getUsername());
+
+                // Envio el mensaje
+                out.write(message);
+
+            }
 
         }
 
@@ -328,6 +349,24 @@ public class Chat extends UntypedActor {
         }
 
         return info;
+    }
+
+    private WebSocket.Out getOutByUserName(String userName){
+
+        WebSocket.Out<JsonNode> out = null;
+
+        for(UserConnected user: Chat.users.keySet()){
+
+            if(user.equals(userName)){
+
+                out = Chat.users.get(user);
+
+            }
+
+        }
+
+        return out;
+
     }
 
 

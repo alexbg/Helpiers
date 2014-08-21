@@ -42,6 +42,16 @@ $('document').ready(function(){
                     $('#infouser').html(message.html);
 
                 }
+
+                if(message.type === 'chatRequest'){
+
+                    console.log("llega ChatRequest");
+                    $('#modal-user-name').attr('name',message.username);
+                    $('#modal-user-name').html(message.username);
+
+                    $("#modalRequest").modal({"show":true});
+
+                }
             }
 
             chatSocket.onclose = function(){
@@ -90,7 +100,8 @@ $('document').ready(function(){
         $('#invite').on('click',function(event){
 
             // obtengo el username del usuario al que se va a invitar y envio la invitacion
-            chatSocket.send(JSON.stringify({'type':'chatRequest','username':$('#infoUser').attr('name')}))
+            chatSocket.send(JSON.stringify({'type':'chatRequest','username':$('#infoUser').attr('name')}));
+
         });
 
     }

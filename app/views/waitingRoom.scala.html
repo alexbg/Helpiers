@@ -50,6 +50,21 @@
             </div>
         </div>
     </div>
+    <!-- El modal que muestra quien ha enviado la peticion al usuario -->
+    <div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id="modalRequest">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-body">
+                    El usuario: <span id="modal-user-name" name=""></span> le ha invitado.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Rechazar</button>
+                    <button type="button" class="btn btn-primary">Aceptar</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
 }
 <!--<script src="https://cdn.socket.io/socket.io-1.0.6.js"></script>-->
 <script type="text/javascript" charset="utf-8" src="@routes.ChatRoomController.waiting()"></script>
