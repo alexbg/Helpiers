@@ -1,0 +1,24 @@
+@(form: Form[LoginController.Login])
+@accessTemplate{
+    @helper.form(routes.LoginController.authenticate) {
+        <div class="border-inf">
+            <h1>Entra en Helpiers</h1>
+        </div>
+        <div class="login-form">
+            @if(form.hasGlobalErrors) {
+            <p class="error">
+                @form.globalError.message
+            </p>
+            }
+            <div class="form-field-padding">
+                <input class="long-field" type="email" name="email" placeholder="Email" value="@form("email").value">
+            </div>
+            <div class="form-field-padding">
+                <input class="long-field" type="password" name="password" placeholder="Password">
+            </div>
+            <div class="form-field-padding">
+                <button class="btn btn-primary" type="submit">Go Helpiers!!</button>
+            </div>
+        </div>
+    }
+}

@@ -1,0 +1,41 @@
+@(categoryList: List[models.Category])(form: Form[controllers.ChatRoomController.NewTopic])(user: models.User)
+@main(null) {
+    <div class="row fullScreen">
+        <div class="col-md-8 mainPartContainer">
+            <h2>¿De qué quieres hablar hoy?</h2>
+            <div class="formContainer">
+                @helper.form(routes.ChatRoomController.goToChatRoom) {
+                    <p>
+                        <textarea class="form-control" rows="3" name="topicText"></textarea>
+                    </p>
+                    <select class="form-control" name="categoryName">
+                        @for(category <- categoryList){
+                            <option>@category.getCategoryName()</option>
+                        }
+                    </select>
+                    <p>
+                        <button type="submit">Entrar</button>
+                    </p>
+                }
+            </div>
+        </div>
+        <div class="col-md-4 profile text-center">
+            <h2>Tu perfil</h2>
+            @if(user.username!=null){
+                <div>Nombre de usuario: @user.username</div>
+            }
+            @if(user.sex!=null){
+                <div>Sexo: @user.sex.toString</div>
+            }
+            @if(user.bornDate!=null){
+                <div>Fecha de nacimiento: @user.getStingBornDate()</div>
+            }
+            @if(user.userDescription !=null){
+                <div>Descripción personal: @user.userDescription</div>
+            }
+            @if(user.registerDate!=null){
+                <div>Fecha de registro: @user.getStingRegDate()</div>
+            }
+        </div>
+    </div>
+}
