@@ -13,6 +13,8 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.User;
 import models.UserConnected;
+import models.chat.ChatRequest;
+import models.chat.InfoUser;
 import models.chat.InsertUser;
 import play.libs.Akka;
 import play.libs.F;
@@ -34,17 +36,11 @@ public class Chat extends UntypedActor {
     // Map<userConnect,WebSocket.Out<JsonNode>>
     private static Map<UserConnected,WebSocket.Out<JsonNode>> users = new HashMap<UserConnected,WebSocket.Out<JsonNode>>();
 
-    public Map<UserConnected,WebSocket.Out<JsonNode>> getUserWS(){
-        return users;
-    }
-
     // Mirar como hacer que no aparectan en la lista los usuarios que estan en conversaciones
-
 
     // Donde se guardan las salas con sus usuarios
     // Map<userCreated,userCreated>
     private static Map<String,String> rooms = new HashMap<String,String>();
-
 
     // Actor que manejara los usuario, los crearra, eliminara, y manejara las peticiones de chat y mensajes*
 
@@ -79,13 +75,13 @@ public class Chat extends UntypedActor {
     public void onReceive(Object request) throws Exception {
 
         Errors errors = new Errors(false);
-        // si el mensaje es insertar, entonces guarda el usuario en el map users
 
+        // si el mensaje es insertar, entonces guarda el usuario en el map users
         if (request instanceof InsertUser) {
 
-            final InsertUser user = (InsertUser) request;
-
             // Envio el usuario conectado a todos los usuarios
+            // user almacena el UserConnected del usuario que ha pedido la conexion
+            final InsertUser user = (InsertUser) request;
 
             Html html = listUsers.render(user.getUserConnected());
 
@@ -93,11 +89,14 @@ public class Chat extends UntypedActor {
             ObjectNode message = Json.newObject();
 
             // Le digo que es un mensaje de tipo open
-            message.put("type", "open");
+            message.put("type","open");
 
             // Envio el mensaje
 
             message.put("html",html.toString());
+
+            // Envio el id que seria el username
+            message.put("id",user.getUserConnected().getUser().getUsername());
 
             // Envio el mensaje a todos los usuarios exepto a si mismo
             sendMessageToAll(message);
@@ -112,30 +111,17 @@ public class Chat extends UntypedActor {
 
                     // Obtengo la informacion del usuario
                     if(jsonNode.get("type").asText().equals("getInfoUser")){
+                        // Hace la peticion mediante un actor para obtener la informacion del usuario
+                        Chat.sendRequest(new InfoUser(jsonNode.get("username").asText(),user.getOut()));
+                    }
 
-                        UserConnected info = getUserConnectedByUserName(jsonNode.get("username").asText());
-                        System.out.println(info);
-                        // SI hay UserConnected, genero el mensaje
-                        if(info != null){
+                    if(jsonNode.get("type").asText().equals("chatRequest")){
 
-                            /*
-                            message.put("username",info.getUser().getUsername());
-                            message.put("sex",info.getUser().getSex().toString());
-                            message.put("borndate",info.getUser().getStingBornDate());
-                            message.put("description",info.getUser().getUserDescription());
-                            message.put("regdate",info.getUser().getStingRegDate());*/
+                        System.out.println("Peticion chatRequest recibida");
 
-                            Html infoHtml = infoUser.render(info);
+                        // Hace la peticion mediante un actor para realizar y enviar la peticion
+                        Chat.sendRequest(new ChatRequest(user.getUserConnected(),jsonNode.get("username").asText()));
 
-                            ObjectNode message = Json.newObject();
-
-                            message.put("type","infoUser");
-                            message.put("html",infoHtml.toString());
-
-                            // Envio el mensaje
-                            user.getOut().write(message);
-
-                        }
                     }
                 }
             });
@@ -169,14 +155,62 @@ public class Chat extends UntypedActor {
             }
         }
 
-        // borra el usuario y envia un mensaje a todos los usuarios para que lo borren de su lista
-        if("close".equals(request)){
+        // Obtiene la informacion del usuario y se la envia
+        if(request instanceof InfoUser){
 
-            System.out.println("close on receive");
+            InfoUser user = (InfoUser) request;
+
+            // Obtengo la informacion del usuario
+            UserConnected info = getUserInfoByUserName(user.getUserName());
+            System.out.println("Preparando informacion del usuario...");
+            // Si hay UserConnected, genero el mensaje
+            if(info != null){
+
+                Html infoHtml = infoUser.render(info);
+
+                ObjectNode message = Json.newObject();
+
+                message.put("type","infoUser");
+                message.put("html",infoHtml.toString());
+                System.out.println(message);
+
+                // Envio el mensaje
+                user.getOut().write(message);
+
+                System.out.println("Informacion enviada");
+
+            }
 
         }
 
-        // indico si ha habido errores o no
+        // Recibe la peticion del usuario para iniciar un chat
+        if(request instanceof ChatRequest){
+
+            ChatRequest chatRequest = (ChatRequest)request;
+
+            // Obtengo el UserConnected del usuario alq ue hayq uen enviarle la informacion
+            UserConnected userToSendInvite = this.getUserInfoByUserName(chatRequest.getGuest());
+
+            // Obtengo el webSocket out del usuario al que hay que enviarle la informacion
+            WebSocket.Out<JsonNode> out = Chat.users.get(userToSendInvite);
+
+            // Si el usuario existe, preparo el envio
+            if(userToSendInvite != null){
+
+                ObjectNode message = Json.newObject();
+
+                message.put("type","chatRequest");
+                // Envio el username del que ha realizado la peticion
+                message.put("username", chatRequest.getUser().getUser().getUsername());
+
+                // Envio el mensaje
+                out.write(message);
+
+            }
+
+        }
+
+        // indico si ha habido errores o no y realizo la respuesta al actor
         getSender().tell(errors,self());
 
 
@@ -184,7 +218,6 @@ public class Chat extends UntypedActor {
 
     // Obtengo todos los usuarios en json
     private ObjectNode getUsersInJson(){
-
 
         ObjectNode list = Json.newObject();
 
@@ -205,6 +238,12 @@ public class Chat extends UntypedActor {
     }
 
     // Obtengo todos los userConnected del map users
+
+    /**
+     * Devuelve un arrayList con todos los UserConnected que estan
+     * en el Map users
+     * @return Devuelve un arrayList de UserConnected
+     */
     public static ArrayList<UserConnected> getUsers(){
 
         ArrayList listUsers = new ArrayList<UserConnected>();
@@ -215,12 +254,36 @@ public class Chat extends UntypedActor {
 
         }
 
-        System.out.println(Chat.users.size());
+        //System.out.println(Chat.users.size());
 
         return listUsers;
 
     }
 
+    public static ArrayList<UserConnected> getUsers(String username){
+
+        ArrayList listUsers = new ArrayList<UserConnected>();
+
+        for(UserConnected user: Chat.users.keySet()){
+            if(user.getUser().getUsername() != username) {
+                listUsers.add(user);
+            }
+
+        }
+
+        //System.out.println(Chat.users.size());
+
+        return listUsers;
+
+    }
+
+    /**
+     * Devuelve en un objectNode con la informacion del
+     * usuario que se le pasa como parametro
+     * @see EN CONSTRUCCION
+     * @param user Una instancia de UserConnected
+     * @return
+     */
     private JsonNode getUser(UserConnected user){
 
         ObjectNode data = Json.newObject();
@@ -233,6 +296,13 @@ public class Chat extends UntypedActor {
     }
 
     // Envia un mensaje a todos los usuarios. El mensaje se pasa como parametro
+
+    /**
+     * Envia un Json a todos los usuarios conectados.
+     * Los usuarios los obtiene mediante el map users de la clase
+     * Chat
+     * @param message　Una instancia de objectNode
+     */
     private void sendMessageToAll(ObjectNode message){
 
         for(WebSocket.Out<JsonNode> out: Chat.users.values()){
@@ -243,8 +313,28 @@ public class Chat extends UntypedActor {
 
     }
 
-    // Obtiene un UserConnected mediante el username
-    public static UserConnected getUserConnectedByUserName(String userName){
+    private void sendMessageToAll(ObjectNode message, WebSocket.Out<JsonNode> except){
+
+        for(WebSocket.Out<JsonNode> out: Chat.users.values()){
+
+            if(!out.equals(except)) {
+
+                out.write(message);
+
+            }
+
+        }
+
+    }
+
+    /**
+     * Devuelve un UserConnected en el Map users de la clase Chat
+     * mediante el username.
+     * @param userName El username del Model username
+     * @return Devuelve el UserConnected encontrado.
+     * Si no encuentra ningun UserConnected, devuelve null
+     */
+    private UserConnected getUserInfoByUserName(String userName){
 
         UserConnected info = null;
 
@@ -260,6 +350,45 @@ public class Chat extends UntypedActor {
 
         return info;
     }
+
+    private WebSocket.Out getOutByUserName(String userName){
+
+        WebSocket.Out<JsonNode> out = null;
+
+        for(UserConnected user: Chat.users.keySet()){
+
+            if(user.equals(userName)){
+
+                out = Chat.users.get(user);
+
+            }
+
+        }
+
+        return out;
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

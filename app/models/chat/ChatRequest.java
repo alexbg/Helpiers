@@ -7,12 +7,37 @@ import models.UserConnected;
  */
 public class ChatRequest {
 
-    UserConnected targetUser;
+    // Usuario que invita
+    UserConnected user;
+    //username del usuario que invita
+    String guest;
 
-    ChatRequest(UserConnected user){
+    public ChatRequest(UserConnected user,String userName){
 
-        this.targetUser = user;
+        this.user = user;
+        this.guest = userName;
 
     }
 
+    public ChatRequest(String userName){
+
+        this.guest = userName;
+
+    }
+
+    public UserConnected getUser() {
+        return user;
+    }
+
+    public void setUser(UserConnected user) {
+        this.user = user;
+    }
+
+    public String getGuest() {
+        return guest;
+    }
+
+    public void setGuest(String guest) {
+        this.guest = guest;
+    }
 }

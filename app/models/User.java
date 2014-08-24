@@ -1,5 +1,6 @@
 package models;
 
+import org.omg.CORBA.UNKNOWN;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
@@ -108,12 +109,19 @@ public class User extends Model {
         this.username = username;
     }
     public String getUserDescription() {
+
+        /*if(userDescription == null ){
+            userDescription = "No disponible";
+        }*/
         return userDescription;
     }
     public void setUserDescription(String userDescription) {
         this.userDescription = userDescription;
     }
     public Sex getSex() {
+        if(sex == null){
+            sex = sex.UNKNOWN;
+        }
         return sex;
     }
     public void setSex(Sex sex) {
@@ -141,14 +149,25 @@ public class User extends Model {
         String result;
         DateFormat formatter = null;
         formatter = new SimpleDateFormat("yyyy-MM-dd");
-        result = formatter.format(getBornDate().getTime());
+        if(getBornDate() != null) {
+            result = formatter.format(getBornDate().getTime());
+        }
+        else{
+            result = "";
+        }
+
         return result;
     }
     public String getStingRegDate(){
         String result;
         DateFormat formatter = null;
         formatter = new SimpleDateFormat("yyyy-MM-dd");
-        result = formatter.format(getRegisterDate().getTime());
+        if(getRegisterDate() != null){
+            result = formatter.format(getRegisterDate().getTime());
+        }
+        else{
+            result = "";
+        }
         return result;
     }
 }

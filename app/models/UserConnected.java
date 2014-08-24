@@ -21,22 +21,22 @@ public class UserConnected {
         this.category = category;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
+    //@Override
+    public boolean equals(String username) {
+        //if (this == o) return true;
+        if (username == null) return false;
 
-        String that = (String) o;
+        //String that = o;
 
-        if (!user.getUsername().equals(that)) return false;
+        if (!user.getUsername().equals(username)) return false;
 
         return true;
     }
 
-    @Override
+    /*@Override
     public int hashCode() {
         return user.hashCode();
-    }
+    }*/
 
     // ******************************** GETTERS AND SETTERS
     public User getUser() {
