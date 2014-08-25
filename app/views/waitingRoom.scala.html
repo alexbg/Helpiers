@@ -37,7 +37,7 @@
             </ul>
         </div>
         <div class="col-md-4 profile text-center">
-            <div id="infouser">
+            <div id="infouser" name="">
                 <h2>Perfil</h2>
                 <div>Nombre de usuario:</div>
                 <div>Sexo:</div>
@@ -58,11 +58,28 @@
                     El usuario: <span id="modal-user-name" name=""></span> le ha invitado.
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Rechazar</button>
-                    <button type="button" class="btn btn-primary">Aceptar</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal" id="reject">Rechazar</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" id="accept">Aceptar</button>
                 </div>
             </div>
+        </div>
+    </div>
 
+    <!-- Modal de informacion -->
+
+    <div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id="modalInfo">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-body" id="info">
+                    Esperando respuesta del usuario...
+                    <div id="requestResponse" class="hidden">
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" id="cancel">Cancelar</button>
+                </div>
+            </div>
         </div>
     </div>
 }

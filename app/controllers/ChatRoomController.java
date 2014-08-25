@@ -2,7 +2,7 @@ package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.stream.JsonReader;
-import controllers.actors.Chat;
+import controllers.actors.WaitingRoomCA;
 import models.Category;
 import models.Topic;
 import models.User;
@@ -13,7 +13,6 @@ import play.mvc.Result;
 import com.google.gson.*;
 import play.mvc.WebSocket;
 import views.html.chatPrueba;
-import views.html.chatRoom;
 import views.html.index;
 import views.html.waitingRoom;
 
@@ -146,7 +145,7 @@ public class ChatRoomController extends Controller {
         }
         //return redirect(routes.ChatRoomController.chat(user.getUsername())); //PARA IR AL CHAT
         // PENSAR EN OBTENER LOS USUARIOS POR getUsers MEDIANTE AKKA CON UN ACTOR
-        return ok(waitingRoom.render(newTopic.getTopicText(), category.getCategoryName(),Chat.getUsers()));
+        return ok(waitingRoom.render(newTopic.getTopicText(), category.getCategoryName(), WaitingRoomCA.getUsers()));
 
     }
 
@@ -179,7 +178,7 @@ public class ChatRoomController extends Controller {
                 // Crear el userConnected y pasarlo al setuser
                 System.out.println("Se han dado la mano");
                 // inserto el usuario
-                Chat.insertUser(userConnected,out,in);
+                WaitingRoomCA.insertUser(userConnected, out, in);
             }
 
         };

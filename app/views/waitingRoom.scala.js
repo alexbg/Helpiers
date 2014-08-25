@@ -30,7 +30,7 @@ $('document').ready(function(){
                     // Le pongo el html
                     $('#userConnectedList').append(message.html);
 
-                    console.log(message);
+
 
                     // Quito los eventos que tengan las listas y se lo pongo otra vez
 
@@ -45,18 +45,46 @@ $('document').ready(function(){
 
                 if(message.type === 'chatRequest'){
 
-                    console.log("llega ChatRequest");
+
                     $('#modal-user-name').attr('name',message.username);
                     $('#modal-user-name').html(message.username);
 
-                    $("#modalRequest").modal({"show":true});
+                    $("#modalRequest").modal('toggle');
+
+                }
+
+                if(message.type === 'rejectinvitation'){
+
+                    $('#requestResponse').html('Denegado').attr('class','bg-danger');
+
+                    //$('#modalInfo').modal('toggle');
+
+                }
+
+                if(message.type === 'acceptinvitation'){
+
+                    $('#requestResponse').html('Aceptado, redirigiendo al chat...').attr('class','bg-success');
+
+                }
+
+                if(message.type === 'cancelInvitation'){
+
+                    $("#modalRequest").modal('toggle');
+                    alert('han cancelado la invitacion');
+
+                }
+
+                if(message.type === 'error'){
+
+                    $("#modalInfo").modal('toggle');
+                    alert(message.message);
 
                 }
             }
 
             chatSocket.onclose = function(){
 
-                console.log('Cerrando...');
+
 
             }
 
@@ -71,7 +99,6 @@ $('document').ready(function(){
     function eventGetInfoUser(id){
 
         if(id === 'undefined'){
-
 
             $('#userConnectedList li').on('click',function(event,selector){
 
@@ -95,12 +122,44 @@ $('document').ready(function(){
     }
 
     function invite(){
-        console.log('invite');
+
         //$('#invite').off();
         $('#invite').on('click',function(event){
+            if($('#infoUser').attr('name') !== ''){
+                $('#modalInfo').modal('toggle');
+                // obtengo el username del usuario al que se va a invitar y envio la invitacion
+                chatSocket.send(JSON.stringify({'type':'chatRequest','username':$('#infoUser').attr('name')}));
+            }
 
-            // obtengo el username del usuario al que se va a invitar y envio la invitacion
-            chatSocket.send(JSON.stringify({'type':'chatRequest','username':$('#infoUser').attr('name')}));
+        });
+
+    }
+
+    function buttonsModalRequest(){
+
+        $('#accept').on('click',function(event){
+
+            chatSocket.send(JSON.stringify({'type':'acceptInvitation'}));
+
+        });
+
+        $('#reject').on('click',function(event){
+            chatSocket.send(JSON.stringify({'type':'rejectInvitation'}));
+        });
+
+        $('#cancel').on('click',function(event){
+
+            chatSocket.send(JSON.stringify({'type':'cancelInvitation'}));
+
+        });
+
+    }
+
+    function eventsModals(){
+
+        $('#modalInfo').on('hide.bs.modal',function(event){
+
+            $('#requestResponse').attr('class','hidden');
 
         });
 
@@ -110,6 +169,8 @@ $('document').ready(function(){
         // Evento al li de todos los usuarios
         eventGetInfoUser('undefined');
         invite();
+        buttonsModalRequest();
+        eventsModals();
     }
 
 });
