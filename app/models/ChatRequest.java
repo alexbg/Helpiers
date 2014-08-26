@@ -32,10 +32,10 @@ public class ChatRequest extends Model {
     @Temporal(TemporalType.DATE)
     public Date statusUpdateDate;
 
-    public ChatRequest(User userHost, User userOwner, Status status, Date creationDate) {
+    public ChatRequest(User userHost, User userOwner, Date creationDate) {
         this.userHost = userHost;
         this.userOwner = userOwner;
-        this.status = status;
+        this.status = Status.ONHOLD;
         this.creationDate = creationDate;
         this.statusUpdateDate = null;
     }
@@ -43,8 +43,13 @@ public class ChatRequest extends Model {
     public enum Status{
         ACCEPTED,
         REJECTED,
-        CANCELED
+        CANCELED,
+        ONHOLD
     }
+
+    public static Finder<Long,ChatRequest> find = new Finder<Long,ChatRequest>(
+            Long.class, ChatRequest.class
+    );
 
     // ************************************ GETTERS y SETTERS
 

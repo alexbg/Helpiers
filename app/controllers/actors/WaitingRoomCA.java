@@ -1,6 +1,7 @@
 package controllers.actors;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -8,9 +9,11 @@ import java.util.concurrent.TimeUnit;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
+import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import models.UserConnected;
+import models.*;
 import models.chat.*;
+import models.chat.ChatRequest;
 import play.libs.Akka;
 import play.libs.F;
 import play.libs.Json;
@@ -38,6 +41,11 @@ public class WaitingRoomCA extends UntypedActor {
     // Clave: Usuario invitado
     // Value: Usuario que invita
     private static Map<UserConnected,UserConnected> requests = new HashMap<UserConnected,UserConnected>();
+
+    // Id de la peticion de la base de datos
+
+    private static Map<UserConnected,Long> requestDb = new HashMap<UserConnected,Long>();
+
 
     // Actor que manejara los usuario, los creara, eliminara, y manejara las peticiones de chat y mensajes*
 
@@ -239,6 +247,9 @@ public class WaitingRoomCA extends UntypedActor {
                 // Envio el mensaje
                 out.write(message);
 
+                // Guarda la informacion de la peticion en la base de datos
+                saveRequest(userToSendInvite,chatRequest.getUser(),new Date());
+
             }
             else{
                 // Envio un mensaje al usuario que realizo la peticion informando del error
@@ -284,6 +295,10 @@ public class WaitingRoomCA extends UntypedActor {
                 WaitingRoomCA.requests.remove(requestAC.getUser());
                 WaitingRoomCA.requests.remove(host);
 
+                // Actualizo la peticion en la base de datos
+
+                updateRequest(host,requestAC.getUser(),new Date(), models.ChatRequest.Status.REJECTED);
+
             }
 
         }
@@ -315,6 +330,10 @@ public class WaitingRoomCA extends UntypedActor {
                 WaitingRoomCA.requests.remove((host));
 
                 System.out.println("Invitacion acceptada");
+
+                // Actualizo la peticion en la base de datos
+
+                updateRequest(host,accept.getUser(),new Date(), models.ChatRequest.Status.ACCEPTED);
             }
 
         }
@@ -325,10 +344,10 @@ public class WaitingRoomCA extends UntypedActor {
 
             if(WaitingRoomCA.requests.containsKey(cancel.getUser())){
 
-                // Obtengo el UserConnected del que envio la informacion
+                // Obtengo el UserConnected al que se le envio la invitacion
                 UserConnected guest = WaitingRoomCA.requests.get(cancel.getUser());
 
-                // Obtengo el out del usuario que inicio la peticion
+                // Obtengo el out del usuario al que se le envio la invitacion
                 WebSocket.Out<JsonNode> out = WaitingRoomCA.users.get(guest);
 
                 // FALTA ENVIAR LA INFORMACION AL USUARIO DE QUE SE HA CANCELADO LA INVITACION
@@ -344,6 +363,10 @@ public class WaitingRoomCA extends UntypedActor {
                 WaitingRoomCA.requests.remove((guest));
 
                 System.out.println("Invitacion Cancelada");
+
+                // Actualizo la peticion en la base de datos
+
+                updateRequest(guest,cancel.getUser(),new Date(), models.ChatRequest.Status.CANCELED);
             }
 
         }
@@ -416,7 +439,7 @@ public class WaitingRoomCA extends UntypedActor {
     /**
      * Devuelve en un objectNode con la informacion del
      * usuario que se le pasa como parametro
-     * @see EN CONSTRUCCION
+     * EN CONSTRUCCION
      * @param user Una instancia de UserConnected
      * @return
      */
@@ -520,6 +543,49 @@ public class WaitingRoomCA extends UntypedActor {
         }
 
         return user;
+
+    }
+
+    /**
+     * Guarda en la base de datos la peticion de chat
+     * @param userHost
+     * @param userOwner
+     * @param date
+     */
+    public void saveRequest(UserConnected userHost, UserConnected userOwner,Date date){
+
+        boolean saved = true;
+
+        // Guardo la invitacion en la base de datos
+
+        models.ChatRequest db = new models.ChatRequest(userHost.getUser(),userOwner.getUser(),date);
+        db.save();
+
+        // Guardo la id en el mapa junto al usuario que pertenece
+
+        requestDb.put(userHost,db.getId());
+        requestDb.put(userOwner,db.getId());
+
+        //return saved;
+    }
+
+    /**
+     * Actualiza la peticion de chat de la base de datos
+     * @param userHost
+     * @param userOwner
+     * @param date
+     * @param status
+     */
+    public void updateRequest(UserConnected userHost, UserConnected userOwner,Date date, models.ChatRequest.Status status){
+        System.out.println("Actualiza la peticion");
+        Long id = requestDb.get(userHost);
+        models.ChatRequest db = models.ChatRequest.find.byId(id);
+        db.setStatus(status);
+        db.setStatusUpdateDate(date);
+        db.save();
+
+        requestDb.remove(userHost);
+        requestDb.remove(userOwner);
 
     }
 

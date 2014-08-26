@@ -36,13 +36,13 @@ $('document').ready(function(){
 
                     eventGetInfoUser(message.id);
                 }
-
+                // Recibe la informacion del usuario solicitado
                 if(message.type === 'infoUser'){
 
                     $('#infouser').html(message.html);
 
                 }
-
+                // Recibe la peticion de iniciar una conversacion
                 if(message.type === 'chatRequest'){
 
 
@@ -52,7 +52,7 @@ $('document').ready(function(){
                     $("#modalRequest").modal('toggle');
 
                 }
-
+                // Recibe el rechazo de una invitacion que se haya hecho anteriormente
                 if(message.type === 'rejectinvitation'){
 
                     $('#requestResponse').html('Denegado').attr('class','bg-danger');
@@ -60,20 +60,20 @@ $('document').ready(function(){
                     //$('#modalInfo').modal('toggle');
 
                 }
-
+                // recibe la aceptacion de la invitacion
                 if(message.type === 'acceptinvitation'){
 
                     $('#requestResponse').html('Aceptado, redirigiendo al chat...').attr('class','bg-success');
 
                 }
-
+                // Recibe el mensaje informando de que se ha cancelado la peticion
                 if(message.type === 'cancelInvitation'){
 
                     $("#modalRequest").modal('toggle');
                     alert('han cancelado la invitacion');
 
                 }
-
+                // SI hay algun error, se le informa al usuario
                 if(message.type === 'error'){
 
                     $("#modalInfo").modal('toggle');
@@ -81,7 +81,7 @@ $('document').ready(function(){
 
                 }
             }
-
+            // Se ejecuta cuando se cierra la conexion con el websocket del servidor
             chatSocket.onclose = function(){
 
 
@@ -97,7 +97,8 @@ $('document').ready(function(){
     // Pone el evento para obtener informacion del usuario
 
     function eventGetInfoUser(id){
-
+        // Si no se le indica un id concreto, el evento se le pondra a todos los usuarios
+        // de la lista. EN caso contrario, solo seria a ese usuario concreto
         if(id === 'undefined'){
 
             $('#userConnectedList li').on('click',function(event,selector){
@@ -120,12 +121,12 @@ $('document').ready(function(){
         }
 
     }
-
+    // Pone el evento para invitar auna persona con el boton invitar
+    // Muestra el modal indicando la espera de la respuesta
     function invite(){
 
-        //$('#invite').off();
         $('#invite').on('click',function(event){
-            if($('#infoUser').attr('name') !== ''){
+            if($('#infoUser').attr('name')){
                 $('#modalInfo').modal('toggle');
                 // obtengo el username del usuario al que se va a invitar y envio la invitacion
                 chatSocket.send(JSON.stringify({'type':'chatRequest','username':$('#infoUser').attr('name')}));
@@ -134,7 +135,7 @@ $('document').ready(function(){
         });
 
     }
-
+    // Pone los eventos a los botones del modal para aceptar, rechazar o cancelar la peticion de chat
     function buttonsModalRequest(){
 
         $('#accept').on('click',function(event){
@@ -154,9 +155,10 @@ $('document').ready(function(){
         });
 
     }
-
+    // Se declaran las configuraciones de los eventos de los modal
     function eventsModals(){
-
+        // Cuando se esconde el modal, cambia la clase del elemento con el id requestResponse
+        // que se encarga de mostrar si la peticion a sido aceptada o rechazada
         $('#modalInfo').on('hide.bs.modal',function(event){
 
             $('#requestResponse').attr('class','hidden');
@@ -164,7 +166,7 @@ $('document').ready(function(){
         });
 
     }
-
+    // Ejecuta las funciones principales
     function init(){
         // Evento al li de todos los usuarios
         eventGetInfoUser('undefined');
