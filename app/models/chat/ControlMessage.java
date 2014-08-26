@@ -28,9 +28,9 @@ public class ControlMessage {
      */
     public String info;
 
-    public ControlMessage(UserConnected userMsOrg, int type, String info) {
+    public ControlMessage(UserConnected userMsOrg, int kind, String info) {
         this.userMsOrg = userMsOrg;
-        this.kind = type;
+        this.kind = kind;
         this.info = info;
     }
     // ******************************* GETTERS Y SETTERS *****************************************************

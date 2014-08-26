@@ -8,7 +8,7 @@ import java.util.Date;
 /**
  * Created by javi on 11/08/14.
  */
-
+@Entity
 public class Rating extends Model{
     @Id
     @GeneratedValue
