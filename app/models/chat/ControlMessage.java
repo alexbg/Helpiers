@@ -22,7 +22,7 @@ public class ControlMessage {
     /**
      * Tipo de mensaje de control
      */
-    public int type;
+    public int kind;
     /**
      * Información añadida
      */
@@ -30,7 +30,7 @@ public class ControlMessage {
 
     public ControlMessage(UserConnected userMsOrg, int type, String info) {
         this.userMsOrg = userMsOrg;
-        this.type = type;
+        this.kind = type;
         this.info = info;
     }
     // ******************************* GETTERS Y SETTERS *****************************************************
@@ -40,11 +40,11 @@ public class ControlMessage {
     public void setUserMsOrg(UserConnected userMsOrg) {
         this.userMsOrg = userMsOrg;
     }
-    public int getType() {
-        return type;
+    public int getKind() {
+        return kind;
     }
-    public void setType(int type) {
-        this.type = type;
+    public void setKind(int type) {
+        this.kind = type;
     }
     public String getInfo() {
         return info;

@@ -1,6 +1,5 @@
 package models;
 
-import controllers.actors.Chat;
 import play.mvc.*;
 import play.libs.*;
 import play.libs.F.*;
@@ -13,7 +12,6 @@ import static akka.pattern.Patterns.ask;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import controllers.actors.Chat;
 
 
 
@@ -28,9 +26,6 @@ public class ChatRoom extends UntypedActor {
     
     // Default room.
     static ActorRef defaultRoom = Akka.system().actorOf(Props.create(ChatRoom.class));
-
-    // Map de conversaciones activas, asocia los UserConnected entre ellos
-    static Map<UserConnected, UserConnected> activeConversations = new HashMap<UserConnected, UserConnected>();
     
     // Create a Robot, just for fun.
     static {
@@ -50,32 +45,10 @@ public class ChatRoom extends UntypedActor {
             // For each event received on the socket,
             in.onMessage(new Callback<JsonNode>() {
                public void invoke(JsonNode event) {
-                   String type = null;
-                   String value = null;
-                   UserConnected host = null;
-                   UserConnected owner = null;
-                   //analizar el mensaje recibido y actuar según el tipo que sea
-                   type = event.get("type").asText();
-                   if(type!=null && type.equals("chatRequest")){
-                       value = event.get("value").asText();
-                       if(value != null && value.equals("invite")){
-                           //crear un chatRequest
-                           host = Chat.getUserConnectedByUserName(event.get("targetUser").asText());
-
-                       }else if(value != null && value.equals("rejected")){
-
-                       }else if(value != null && value.equals("accepted")){
-                           //se pasa al chat privado
-                       }
-                   }else if(type!=null && type.equals("control")){
-
-                   }else if(type!=null && type.equals("message")){
-
-                   }else{
-                       // Send a Talk message to the room.
-                       defaultRoom.tell(new Talk(username, event.get("text").asText()), null);
-                   }
-
+                   
+                   // Send a Talk message to the room.
+                   defaultRoom.tell(new Talk(username, event.get("text").asText()), null);
+                   
                } 
             });
             
@@ -94,7 +67,7 @@ public class ChatRoom extends UntypedActor {
             // Cannot connect, create a Json error.
             ObjectNode error = Json.newObject();
             error.put("error", result);
-
+            
             // Send the error to the socket.
             out.write(error);
             
@@ -111,7 +84,7 @@ public class ChatRoom extends UntypedActor {
             
             // Received a Join message
             Join join = (Join)message;
-
+            
             // Check if this username is free.
             if(members.containsKey(join.username)) {
                 getSender().tell("This username is already used", getSelf());

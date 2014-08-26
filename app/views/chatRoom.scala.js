@@ -6,7 +6,7 @@ $(function() {
 
     var sendMessage = function() {
         chatSocket.send(JSON.stringify(
-            {text: $("#talk").val()}
+            {type:"talk", kind: "text", info: $("#talk").val()}
         ))
         $("#talk").val('')
     }

@@ -8,10 +8,7 @@ import java.util.concurrent.TimeUnit;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import models.User;
 import models.UserConnected;
 import models.chat.ChatRequest;
 import models.chat.InfoUser;
@@ -30,7 +27,7 @@ import views.html.partial.listUsers;
 
 import static akka.pattern.Patterns.ask;
 
-public class Chat extends UntypedActor {
+public class WaitingRoomCA extends UntypedActor {
 
     // Donde se guardan los usuarios
     // Map<userConnect,WebSocket.Out<JsonNode>>
@@ -44,12 +41,12 @@ public class Chat extends UntypedActor {
 
     // Actor que manejara los usuario, los crearra, eliminara, y manejara las peticiones de chat y mensajes*
 
-    private static ActorRef chatController = Akka.system().actorOf(Props.create(Chat.class), "chatController");
+    private static ActorRef chatController = Akka.system().actorOf(Props.create(WaitingRoomCA.class), "chatController");
 
     // Inserta un usuario
     public static boolean insertUser(UserConnected user,WebSocket.Out<JsonNode> out,WebSocket.In<JsonNode> in){
-        //Chat.sendRequest("close");
-        return Chat.sendRequest(new InsertUser(user, out, in));
+        //WaitingRoomCA.sendRequest("close");
+        return WaitingRoomCA.sendRequest(new InsertUser(user, out, in));
 
     }
 
@@ -102,7 +99,7 @@ public class Chat extends UntypedActor {
             sendMessageToAll(message);
 
             // Meto el user connected en el mapa junto a su out
-            Chat.users.put(user.getUserConnected(), user.getOut());
+            WaitingRoomCA.users.put(user.getUserConnected(), user.getOut());
 
             // Evento que se ejecuta cuando recibe un mensaje
             user.getIn().onMessage(new F.Callback<JsonNode>() {
@@ -112,7 +109,7 @@ public class Chat extends UntypedActor {
                     // Obtengo la informacion del usuario
                     if(jsonNode.get("type").asText().equals("getInfoUser")){
                         // Hace la peticion mediante un actor para obtener la informacion del usuario
-                        Chat.sendRequest(new InfoUser(jsonNode.get("username").asText(),user.getOut()));
+                        WaitingRoomCA.sendRequest(new InfoUser(jsonNode.get("username").asText(), user.getOut()));
                     }
 
                     if(jsonNode.get("type").asText().equals("chatRequest")){
@@ -120,7 +117,7 @@ public class Chat extends UntypedActor {
                         System.out.println("Peticion chatRequest recibida");
 
                         // Hace la peticion mediante un actor para realizar y enviar la peticion
-                        Chat.sendRequest(new ChatRequest(user.getUserConnected(),jsonNode.get("username").asText()));
+                        WaitingRoomCA.sendRequest(new ChatRequest(user.getUserConnected(), jsonNode.get("username").asText()));
 
                     }
                 }
@@ -139,7 +136,7 @@ public class Chat extends UntypedActor {
                     message.put("id", user.getUserConnected().getUser().getUsername());
 
                     // Eliminar usuario del map
-                    Chat.users.remove(user.getUserConnected());
+                    WaitingRoomCA.users.remove(user.getUserConnected());
 
                     //Informo a los usuarios de que se va a eliminar el usuario
                     sendMessageToAll(message);
@@ -148,7 +145,7 @@ public class Chat extends UntypedActor {
             });
 
             // Si por algun motivo no se ha guardado el usuario en el mapa, se guardara el error
-            if (!Chat.users.containsKey(user.getUserConnected())) {
+            if (!WaitingRoomCA.users.containsKey(user.getUserConnected())) {
 
                errors.setMessage("The user has not been saved in the map");
 
@@ -192,7 +189,7 @@ public class Chat extends UntypedActor {
             UserConnected userToSendInvite = this.getUserInfoByUserName(chatRequest.getGuest());
 
             // Obtengo el webSocket out del usuario al que hay que enviarle la informacion
-            WebSocket.Out<JsonNode> out = Chat.users.get(userToSendInvite);
+            WebSocket.Out<JsonNode> out = WaitingRoomCA.users.get(userToSendInvite);
 
             // Si el usuario existe, preparo el envio
             if(userToSendInvite != null){
@@ -221,7 +218,7 @@ public class Chat extends UntypedActor {
 
         ObjectNode list = Json.newObject();
 
-        for(UserConnected users: Chat.users.keySet()){
+        for(UserConnected users: WaitingRoomCA.users.keySet()){
 
             ObjectNode user = Json.newObject();
 
@@ -248,13 +245,13 @@ public class Chat extends UntypedActor {
 
         ArrayList listUsers = new ArrayList<UserConnected>();
 
-        for(UserConnected user: Chat.users.keySet()){
+        for(UserConnected user: WaitingRoomCA.users.keySet()){
 
             listUsers.add(user);
 
         }
 
-        //System.out.println(Chat.users.size());
+        //System.out.println(WaitingRoomCA.users.size());
 
         return listUsers;
 
@@ -264,14 +261,14 @@ public class Chat extends UntypedActor {
 
         ArrayList listUsers = new ArrayList<UserConnected>();
 
-        for(UserConnected user: Chat.users.keySet()){
+        for(UserConnected user: WaitingRoomCA.users.keySet()){
             if(user.getUser().getUsername() != username) {
                 listUsers.add(user);
             }
 
         }
 
-        //System.out.println(Chat.users.size());
+        //System.out.println(WaitingRoomCA.users.size());
 
         return listUsers;
 
@@ -280,7 +277,7 @@ public class Chat extends UntypedActor {
     /**
      * Devuelve en un objectNode con la informacion del
      * usuario que se le pasa como parametro
-     * @see EN CONSTRUCCION
+     * EN CONSTRUCCION
      * @param user Una instancia de UserConnected
      * @return
      */
@@ -300,12 +297,12 @@ public class Chat extends UntypedActor {
     /**
      * Envia un Json a todos los usuarios conectados.
      * Los usuarios los obtiene mediante el map users de la clase
-     * Chat
+     * WaitingRoomCA
      * @param message　Una instancia de objectNode
      */
     private void sendMessageToAll(ObjectNode message){
 
-        for(WebSocket.Out<JsonNode> out: Chat.users.values()){
+        for(WebSocket.Out<JsonNode> out: WaitingRoomCA.users.values()){
 
             out.write(message);
 
@@ -315,7 +312,7 @@ public class Chat extends UntypedActor {
 
     private void sendMessageToAll(ObjectNode message, WebSocket.Out<JsonNode> except){
 
-        for(WebSocket.Out<JsonNode> out: Chat.users.values()){
+        for(WebSocket.Out<JsonNode> out: WaitingRoomCA.users.values()){
 
             if(!out.equals(except)) {
 
@@ -328,17 +325,17 @@ public class Chat extends UntypedActor {
     }
 
     /**
-     * Devuelve un UserConnected en el Map users de la clase Chat
+     * Devuelve un UserConnected en el Map users de la clase WaitingRoomCA
      * mediante el username.
      * @param userName El username del Model username
      * @return Devuelve el UserConnected encontrado.
      * Si no encuentra ningun UserConnected, devuelve null
      */
-    private UserConnected getUserInfoByUserName(String userName){
+    public UserConnected getUserInfoByUserName(String userName){
 
         UserConnected info = null;
 
-        for(UserConnected user: Chat.users.keySet()){
+        for(UserConnected user: WaitingRoomCA.users.keySet()){
 
             if(user.equals(userName)){
 
@@ -355,11 +352,11 @@ public class Chat extends UntypedActor {
 
         WebSocket.Out<JsonNode> out = null;
 
-        for(UserConnected user: Chat.users.keySet()){
+        for(UserConnected user: WaitingRoomCA.users.keySet()){
 
             if(user.equals(userName)){
 
-                out = Chat.users.get(user);
+                out = WaitingRoomCA.users.get(user);
 
             }
 
