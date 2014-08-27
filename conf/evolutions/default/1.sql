@@ -32,6 +32,16 @@ create table chat_request (
   constraint pk_chat_request primary key (id))
 ;
 
+create table rating (
+  id                        bigint auto_increment not null,
+  ID_USER                   bigint not null,
+  CHAT_ID                   bigint,
+  ID_CATEGORY               bigint not null,
+  value                     integer,
+  creation_date             datetime,
+  constraint pk_rating primary key (id))
+;
+
 create table topic (
   id                        bigint auto_increment not null,
   topic_text                varchar(255),
@@ -66,10 +76,16 @@ alter table chat_request add constraint fk_chat_request_userOwner_5 foreign key 
 create index ix_chat_request_userOwner_5 on chat_request (USEROWNER_ID);
 alter table chat_request add constraint fk_chat_request_chat_6 foreign key (CHAT_ID) references chat (id) on delete restrict on update restrict;
 create index ix_chat_request_chat_6 on chat_request (CHAT_ID);
-alter table topic add constraint fk_topic_category_7 foreign key (ID_CATEGORY) references category (id) on delete restrict on update restrict;
-create index ix_topic_category_7 on topic (ID_CATEGORY);
-alter table user add constraint fk_user_topic_8 foreign key (TOPIC_ID) references topic (id) on delete restrict on update restrict;
-create index ix_user_topic_8 on user (TOPIC_ID);
+alter table rating add constraint fk_rating_user_7 foreign key (ID_USER) references user (id) on delete restrict on update restrict;
+create index ix_rating_user_7 on rating (ID_USER);
+alter table rating add constraint fk_rating_chat_8 foreign key (CHAT_ID) references chat (id) on delete restrict on update restrict;
+create index ix_rating_chat_8 on rating (CHAT_ID);
+alter table rating add constraint fk_rating_category_9 foreign key (ID_CATEGORY) references category (id) on delete restrict on update restrict;
+create index ix_rating_category_9 on rating (ID_CATEGORY);
+alter table topic add constraint fk_topic_category_10 foreign key (ID_CATEGORY) references category (id) on delete restrict on update restrict;
+create index ix_topic_category_10 on topic (ID_CATEGORY);
+alter table user add constraint fk_user_topic_11 foreign key (TOPIC_ID) references topic (id) on delete restrict on update restrict;
+create index ix_user_topic_11 on user (TOPIC_ID);
 
 
 
@@ -82,6 +98,8 @@ drop table category;
 drop table chat;
 
 drop table chat_request;
+
+drop table rating;
 
 drop table topic;
 
