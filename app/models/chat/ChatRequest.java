@@ -1,6 +1,9 @@
 package models.chat;
 
+import models.User;
 import models.UserConnected;
+
+import java.util.Date;
 
 /**
  * Created by alex on 12/08/14.

@@ -19,9 +19,9 @@
             <ul id="userConnectedList">
                 <li class="itemList border-inf">
                     <div class="row">
-                        <div class="col-xs-4">username</div>
-                        <div class="col-xs-4">Category</div>
-                        <div class="col-xs-3">puntuación total (Javi)</div>
+                        <div class="col-xs-4"><label>Nombre de usuario</label></div>
+                        <div class="col-xs-4"><label>Categoría</label></div>
+                        <div class="col-xs-3"><label>Puntuación</label></div>
                     </div>
                 </li>
                 @for(user <- users) {
@@ -29,7 +29,7 @@
                         <div class="row">
                             <div class="col-xs-4">@user.getUser().getUsername()</div>
                             <div class="col-xs-4">@user.getCategory().getCategoryName()</div>
-                            <div class="col-xs-3">puntuación total (Javi)</div>
+                            <div class="col-xs-3">X puntos</div>
                             <!--<div>@@user.getUser().getStingBornDate()</div>-->
                         </div>
                     </li>
@@ -37,7 +37,7 @@
             </ul>
         </div>
         <div class="col-md-4 profile text-center">
-            <div id="infouser">
+            <div id="infouser" name="">
                 <h2>Perfil</h2>
                 <div>Nombre de usuario:</div>
                 <div>Sexo:</div>
@@ -51,18 +51,35 @@
         </div>
     </div>
     <!-- El modal que muestra quien ha enviado la peticion al usuario -->
-    <div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id="modalRequest">
+    <div class="modal fade bs-example-modal-sm" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id="modalRequest">
         <div class="modal-dialog modal-sm">
             <div class="modal-content">
                 <div class="modal-body">
                     El usuario: <span id="modal-user-name" name=""></span> le ha invitado.
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Rechazar</button>
-                    <button type="button" class="btn btn-primary">Aceptar</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal" id="reject">Rechazar</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" id="accept">Aceptar</button>
                 </div>
             </div>
+        </div>
+    </div>
 
+    <!-- Modal de informacion -->
+
+    <div class="modal fade bs-example-modal-sm" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id="modalInfo">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-body" id="info">
+                    Esperando respuesta del usuario...
+                    <div id="requestResponse" class="hidden">
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" id="cancel">Cancelar</button>
+                </div>
+            </div>
         </div>
     </div>
 }

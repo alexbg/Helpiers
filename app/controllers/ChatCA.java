@@ -111,6 +111,9 @@ public class ChatCA extends UntypedActor {
     }
     // **************************************Fin tareas **********************************************
 
+    // Default room.
+    private ActorRef privateRoom;
+
     /**
      * CONSTRUCTOR del ChatCA. Gestiona el control de una conversación privada
      * @param host el usuario invitado
@@ -125,20 +128,13 @@ public class ChatCA extends UntypedActor {
         chat.save();
         //running timer task as daemon thread (will be killed automatically when ChatCA finish his work)
         timer = new Timer(true);
-    }
-
-    // Default room.
-    static ActorRef privateRoom = Akka.system().actorOf(Props.create(ChatCA.class));
-
-    // Create a Robot, just for fun.
-    static {
-        new Robot(privateRoom);
+        privateRoom = Akka.system().actorOf(Props.create(ChatCA.class));
     }
 
     /**
      * Join the default room.
      */
-    public static void join(final UserConnected user, WebSocket.In<JsonNode> in, WebSocket.Out<JsonNode> out) throws Exception{
+    public void join(final UserConnected user, WebSocket.In<JsonNode> in, WebSocket.Out<JsonNode> out) throws Exception{
         // Send the Join message to the room
         String result = (String) Await.result(ask(privateRoom, new Join(user, out), 1000), Duration.create(1, SECONDS));
         if("OK".equals(result)) {

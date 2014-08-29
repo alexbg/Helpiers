@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 
-
 import java.util.*;
 
 import static java.util.concurrent.TimeUnit.*;
@@ -67,7 +66,7 @@ public class ChatRoom extends UntypedActor {
             // Cannot connect, create a Json error.
             ObjectNode error = Json.newObject();
             error.put("error", result);
-            
+
             // Send the error to the socket.
             out.write(error);
             
@@ -84,7 +83,7 @@ public class ChatRoom extends UntypedActor {
             
             // Received a Join message
             Join join = (Join)message;
-            
+
             // Check if this username is free.
             if(members.containsKey(join.username)) {
                 getSender().tell("This username is already used", getSelf());

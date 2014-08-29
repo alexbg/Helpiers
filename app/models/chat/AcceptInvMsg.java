@@ -3,13 +3,13 @@ package models.chat;
 import models.UserConnected;
 
 /**
- * Created by alex on 12/08/14.
+ * Created by alex on 25/08/14.
  */
-public class RejectInvitation {
+public class AcceptInvMsg {
 
     UserConnected user;
 
-    public RejectInvitation(UserConnected user){
+    public AcceptInvMsg(UserConnected user){
 
         this.user = user;
 

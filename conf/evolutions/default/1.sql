@@ -28,7 +28,7 @@ create table chat_request (
   status                    varchar(8),
   creation_date             datetime,
   status_update_date        datetime,
-  constraint ck_chat_request_status check (status in ('ACCEPTED','REJECTED','CANCELED')),
+  constraint ck_chat_request_status check (status in ('ACCEPTED','REJECTED','CANCELED','ONHOLD')),
   constraint pk_chat_request primary key (id))
 ;
 
