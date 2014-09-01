@@ -12,6 +12,7 @@ import akka.actor.UntypedActor;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.ChatCA;
+import controllers.PrivateChatsController;
 import models.*;
 import models.chat.*;
 import models.chat.ChatRequest;
@@ -34,6 +35,8 @@ public class WaitingRoomCA extends UntypedActor {
     // Donde se guardan los usuarios
     // Map<userConnect,WebSocket.Out<JsonNode>>
     private static Map<UserConnected,WebSocket.Out<JsonNode>> users = new HashMap<UserConnected,WebSocket.Out<JsonNode>>();
+
+
 
     // Mirar como hacer que no aparectan en la lista los usuarios que estan en conversaciones
 
@@ -313,18 +316,6 @@ public class WaitingRoomCA extends UntypedActor {
                 // Obtengo el UserConnected del que se quiere aceptar
                 UserConnected host = WaitingRoomCA.requests.get(accept.getUser());
 
-                // Obtengo el out del usuario que inicio la peticion
-                WebSocket.Out<JsonNode> out = WaitingRoomCA.users.get(host);
-
-                // Envio un mensaje al que inicio la invitacion
-
-                ObjectNode message = Json.newObject();
-
-                message.put("type","acceptinvitation");
-
-                out.write(message);
-
-
                 // Elimino a los usuarios de las peticiones
                 WaitingRoomCA.requests.remove(accept.getUser());
                 WaitingRoomCA.requests.remove((host));
@@ -337,7 +328,15 @@ public class WaitingRoomCA extends UntypedActor {
 
                 // Preparar la sala de chat
                 models.ChatRequest db = models.ChatRequest.find.byId(requestDb.get(host));
-                chat(accept.getUser(), host, db);
+                ChatCA privateChat = new ChatCA(accept.getUser(), host, db);//creo el Chat
+                PrivateChatsController.privateChats.add(privateChat);//lo registro en la lista del controlador
+
+                // Obtengo el out del usuario que inicio la peticion
+                WebSocket.Out<JsonNode> out = WaitingRoomCA.users.get(host);
+                // Envio un mensaje al que inicio la invitacion
+                ObjectNode message = Json.newObject();
+                message.put("type","acceptinvitation");
+                out.write(message);
             }
 
         }
@@ -601,7 +600,8 @@ public class WaitingRoomCA extends UntypedActor {
 
                 // Join the chat room.
                 try {
-                    new ChatCA(user_host, user_owner, ChatReq);
+                    ChatCA privateChat = new ChatCA(user_host, user_owner, ChatReq);
+                    PrivateChatsController.privateChats.add(privateChat);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }

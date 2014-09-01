@@ -64,6 +64,7 @@ $('document').ready(function(){
                 if(message.type === 'acceptinvitation'){
 
                     $('#requestResponse').html('Aceptado, redirigiendo al chat...').attr('class','bg-success');
+                    Window.location.assign("room");
 
                 }
                 // Recibe el mensaje informando de que se ha cancelado la peticion
@@ -141,6 +142,7 @@ $('document').ready(function(){
         $('#accept').on('click',function(event){
 
             chatSocket.send(JSON.stringify({'type':'acceptInvitation'}));
+            Window.location.assign("room");
 
         });
 

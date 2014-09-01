@@ -42,7 +42,7 @@ public class ChatCA extends UntypedActor {
     public final static String CONTROLMSG = "control";
     public final static String FIN_ACK = "fin_ack";
     public final static String FIN_NACK = "fin_nack";
-    public final static String CONVERSATION_BEGINNING = "conversation_beginning";
+    public final static String JOIN = "join";
     public final static String MINUTE_NOTIFY = "minute_notify";
     public final static String TURN_NOTIFY = "turn_notify";
     public final static String ROUND_NOTIFY = "round_notify";
@@ -195,7 +195,7 @@ public class ChatCA extends UntypedActor {
             Join join = (Join)message;
             if(members.size()<2){//controlo que como máximo entren dos usuarios en el chat privado.
                 members.put(join.user, join.channel);
-                notifyAll(CONTROLMSG, CONVERSATION_BEGINNING, join.user.getUser().getUsername(), "has entered the room");
+                notifyAll(CONTROLMSG, JOIN, join.user.getUser().getUsername(), "has entered the room");
                 getSender().tell("OK", getSelf());
                 /*
                  * SI no vale el constructor normal, hay que añadir a uno de los participantes como owner y otro
@@ -466,4 +466,14 @@ public class ChatCA extends UntypedActor {
     }
 
     // *******************************************************************************************************
+
+
+    // ******************************GETTERS Y SETTERS***********************************************
+    public UserConnected getHostUser() {
+        return hostUser;
+    }
+
+    public UserConnected getOwnerUser() {
+        return ownerUser;
+    }
 }

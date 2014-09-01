@@ -74,7 +74,6 @@ public class ChatRoomController extends Controller {
     public static List<Category> getCategoryList(){
         if(categoryList == null || (categoryList.size()<1 && categoryList.size()>=0 )){
             categoryList = loadCategoriesFromJSON();
-            System.out.println("categorías cargadas con éxito!!");
         }
         return categoryList;
     }
@@ -121,7 +120,6 @@ public class ChatRoomController extends Controller {
         Category category = null;
         User user = null;
         UserConnected userConnected = null;
-        System.out.println("ENTRA");
         if (topicForm.hasErrors()) {
             System.out.println("error en el formulario");
             return badRequest("An error has occurred");
