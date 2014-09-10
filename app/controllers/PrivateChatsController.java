@@ -1,6 +1,8 @@
 package controllers;
 
+import akka.actor.ActorRef;
 import com.fasterxml.jackson.databind.JsonNode;
+import controllers.actors.WaitingRoomCA;
 import models.ChatRoom;
 import models.User;
 import models.UserConnected;
@@ -11,20 +13,18 @@ import views.html.chatPrueba;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Created by javi on 1/09/14.
  */
 public class PrivateChatsController extends Controller {
 
-    public static ArrayList<ChatCA> privateChats = new ArrayList<ChatCA>();
+    public static ArrayList<ChatCA> privateChats = new ArrayList<ChatCA>();//no vale
+    public static Map<UserConnected, ActorRef> privateChatsMap;
 
-    public static Result showChatView(String username) {
-        if(username == null || username.trim().equals("")) {
-            flash("error", "Please choose a valid username.");
-            return redirect(routes.ChatRoomController.index());
-        }
-        return ok(chatPrueba.render(username));
+    public static Result showChatView() {
+        return ok(chatPrueba.render(User.getUserByEmail(session("email")).getUsername()));
     }
 
     /**
@@ -32,13 +32,17 @@ public class PrivateChatsController extends Controller {
      */
     public static WebSocket<JsonNode> chat() {
         final User user = User.getUserByEmail(session("email"));
+        final UserConnected userConnected = null;//sacarlo de la BDD
         return new WebSocket<JsonNode>() {
             // Called when the Websocket Handshake is done.
             public void onReady(WebSocket.In<JsonNode> in, WebSocket.Out<JsonNode> out){
 
                 // Join the chat room.
                 try {
-                    getChatCAOfUser(user).join(getUCfromChatByUser(user), in, out);
+                    privateChatsMap.get(userConnected).tell(new ChatCA.Join(userConnected, out), null);
+
+
+
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }

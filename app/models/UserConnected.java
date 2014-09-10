@@ -33,10 +33,32 @@ public class UserConnected {
         return true;
     }
 
-    /*@Override
+    @Override
+    public boolean equals(Object o) {
+        if(o == null) return false;
+        if (this == o) return true;
+        if (!(o instanceof UserConnected)) return false;
+
+        UserConnected that = (UserConnected) o;
+
+        if (!user.getUsername().equals(that.user.getUsername())) return false;
+
+        return true;
+    }
+
+    @Override
     public int hashCode() {
         return user.hashCode();
-    }*/
+    }
+
+    @Override
+    public String toString() {
+        return "UserConnected{" +
+                "user=" + user +
+                ", topic=" + topic +
+                ", category=" + category +
+                '}';
+    }
 
     // ******************************** GETTERS AND SETTERS
     public User getUser() {

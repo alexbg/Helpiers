@@ -6,9 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import akka.actor.ActorRef;
-import akka.actor.Props;
-import akka.actor.UntypedActor;
+import akka.actor.*;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.ChatCA;
@@ -50,6 +48,8 @@ public class WaitingRoomCA extends UntypedActor {
 
     private static Map<UserConnected,Long> requestDb = new HashMap<UserConnected,Long>();
 
+    //actor ActorSystem
+    public static ActorSystem actorSystem = ActorSystem.create("MySystem");
 
     // Actor que manejara los usuario, los creara, eliminara, y manejara las peticiones de chat y mensajes*
 
@@ -309,12 +309,12 @@ public class WaitingRoomCA extends UntypedActor {
 
         if(request instanceof AcceptInvMsg){
 
-            AcceptInvMsg accept = (AcceptInvMsg) request;
+            final AcceptInvMsg accept = (AcceptInvMsg) request;
 
             if(WaitingRoomCA.requests.containsKey(accept.getUser())){
 
                 // Obtengo el UserConnected del que se quiere aceptar
-                UserConnected host = WaitingRoomCA.requests.get(accept.getUser());
+                final UserConnected host = WaitingRoomCA.requests.get(accept.getUser());
 
                 // Elimino a los usuarios de las peticiones
                 WaitingRoomCA.requests.remove(accept.getUser());
@@ -322,14 +322,17 @@ public class WaitingRoomCA extends UntypedActor {
 
                 System.out.println("Invitacion acceptada");
 
-                // Actualizo la peticion en la base de datos
-
-                updateRequest(host,accept.getUser(),new Date(), models.ChatRequest.Status.ACCEPTED);
-
                 // Preparar la sala de chat
-                models.ChatRequest db = models.ChatRequest.find.byId(requestDb.get(host));
-                ChatCA privateChat = new ChatCA(accept.getUser(), host, db);//creo el Chat
-                PrivateChatsController.privateChats.add(privateChat);//lo registro en la lista del controlador
+                long idChatReq = requestDb.get(host);
+                System.out.println("HOST ID: " + host.getUser().getId());
+                System.out.println("ID DEL CHAT REQUEST: " + idChatReq);
+                //obtengo el models.ChatRequest para pasarlo al constructor de ChatCA
+                final models.ChatRequest db = models.ChatRequest.find.byId(requestDb.get(host));
+
+                //ChatCA chat = ChatCA.mkProps(accept.getUser(), host, db);
+
+                ActorRef privateChat = actorSystem.actorOf(ChatCA.mkProps(accept.getUser(), host, db));
+                //guardar en PrivateChatsController (en el mapa) la asociación de los dos UserConnected con la referencia del actor
 
                 // Obtengo el out del usuario que inicio la peticion
                 WebSocket.Out<JsonNode> out = WaitingRoomCA.users.get(host);
@@ -337,6 +340,21 @@ public class WaitingRoomCA extends UntypedActor {
                 ObjectNode message = Json.newObject();
                 message.put("type","acceptinvitation");
                 out.write(message);
+
+                //lo mismo con el usuario que acepta la invitación:
+                // Obtengo el out del usuario que acepta la invitación
+                WebSocket.Out<JsonNode> out1 = WaitingRoomCA.users.get(accept.getUser());
+                // Envio un mensaje
+                ObjectNode message1 = Json.newObject();
+                message.put("type","acceptinvitation");
+                out.write(message1);
+
+
+
+
+                // Actualizo la peticion en la base de datos. Esto va al final porque elimina el ChatRequest del mapa
+
+                updateRequest(host,accept.getUser(),new Date(), models.ChatRequest.Status.ACCEPTED);
             }
 
         }

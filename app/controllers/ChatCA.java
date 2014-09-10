@@ -115,6 +115,18 @@ public class ChatCA extends UntypedActor {
     private ActorRef privateRoom;
 
     /**
+     * Create Props for an actor of this type.
+      * @param host el usuario invitado
+      * @param owner el usuario que envió la invitación
+     * @param chatRequest modelo del ChatRequest de la invitación que dió paso al chat privado
+     * @return a Props for creating this actor, which can then be further configured
+     *         (e.g. calling `.withDispatcher()` on it)
+     */
+    public static Props mkProps(UserConnected host, UserConnected owner, ChatRequest chatRequest) {
+        return Props.create(ChatCA.class, host, owner, chatRequest);
+    }
+
+    /**
      * CONSTRUCTOR del ChatCA. Gestiona el control de una conversación privada
      * @param host el usuario invitado
      * @param owner el usuario que envió la invitación
@@ -128,7 +140,7 @@ public class ChatCA extends UntypedActor {
         chat.save();
         //running timer task as daemon thread (will be killed automatically when ChatCA finish his work)
         timer = new Timer(true);
-        privateRoom = Akka.system().actorOf(Props.create(ChatCA.class));
+        //privateRoom = Akka.system().actorOf(Props.create(ChatCA.class));//esto no puede ir aqui
     }
 
     /**

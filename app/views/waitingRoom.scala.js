@@ -64,7 +64,7 @@ $('document').ready(function(){
                 if(message.type === 'acceptinvitation'){
 
                     $('#requestResponse').html('Aceptado, redirigiendo al chat...').attr('class','bg-success');
-                    Window.location.assign("room");
+                    Window.location.assign('@routes.ChatRoomController.showChatView()');
 
                 }
                 // Recibe el mensaje informando de que se ha cancelado la peticion

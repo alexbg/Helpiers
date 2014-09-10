@@ -75,9 +75,17 @@ public class User extends Model {
     public ArrayList<Rating> getUserReputation(){
         return new ArrayList<Rating>(Rating.find.where().eq("ID_USER", id).findList());
     }
-	
-	
-	//**************************** GETTERS Y SETTERS
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", username='" + username + '\'' +
+                '}';
+    }
+
+    //**************************** GETTERS Y SETTERS
 	public Long getId() {
 		return id;
 	}
