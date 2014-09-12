@@ -2,7 +2,6 @@ $('document').ready(function(){
 
     var WS = window['MozWebSocket'] ? MozWebSocket : WebSocket;
 
-    //var socket = io('@routes.ChatRoomController.socketRoom().webSocketURL(request)');
     var chatSocket = new WS('@routes.ChatRoomController.socketRoom().webSocketURL(request)');
 
     // Cuando la conexion este abierta, ya puede empezar a enviar y recibir
@@ -64,7 +63,7 @@ $('document').ready(function(){
                 if(message.type === 'acceptinvitation'){
 
                     $('#requestResponse').html('Aceptado, redirigiendo al chat...').attr('class','bg-success');
-                    Window.location.assign('@routes.ChatRoomController.showChatView()');
+                    $.get('@routes.PrivateChatsController.showChatView()');
 
                 }
                 // Recibe el mensaje informando de que se ha cancelado la peticion

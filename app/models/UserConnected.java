@@ -1,13 +1,25 @@
 package models;
 
+import play.db.ebean.Model;
+
+import javax.persistence.*;
+
 /**
  * Created by javi on 8/08/14.
  */
-public class UserConnected {
+@Entity
+public class UserConnected extends Model {
 
+    @Id
+    @GeneratedValue
+    private Long id;
+    @OneToOne
+    @JoinColumn(name = "USER_ID")
     private User user;
     private Topic topic;
     private Category category;
+
+    public static Model.Finder<Long,UserConnected> find = new Model.Finder<Long,UserConnected>(Long.class, UserConnected.class);
 
     public UserConnected(){
         user = null;
@@ -19,6 +31,12 @@ public class UserConnected {
         this.user = user;
         this.topic = topic;
         this.category = category;
+    }
+
+    public static UserConnected getUserConnectedByUser(User user){
+        UserConnected result = null;
+        result = find.where().eq("USER_ID", user.getId()).findUnique();
+        return result;
     }
 
     //@Override
@@ -60,7 +78,7 @@ public class UserConnected {
                 '}';
     }
 
-    // ******************************** GETTERS AND SETTERS
+    // ******************************** GETTERS AND SETTERS *********************************************
     public User getUser() {
         return user;
     }
@@ -78,5 +96,11 @@ public class UserConnected {
     }
     public void setCategory(Category category) {
         this.category = category;
+    }
+    public Long getId() {
+        return id;
+    }
+    public void setId(Long id) {
+        this.id = id;
     }
 }

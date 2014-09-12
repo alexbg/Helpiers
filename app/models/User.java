@@ -1,8 +1,6 @@
 package models;
 
-import org.omg.CORBA.UNKNOWN;
 import play.db.ebean.Model;
-
 import javax.persistence.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

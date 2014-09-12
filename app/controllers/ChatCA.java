@@ -67,6 +67,9 @@ public class ChatCA extends UntypedActor {
     private NegotiationEndState ownerNES;
     private NegotiationEndState hostNES;
 
+    // Members of this room.
+    private Map<UserConnected, WebSocket.Out<JsonNode>> members = new HashMap<UserConnected, WebSocket.Out<JsonNode>>();
+
 
     // ****************************************** Control flags*******************************************
     /**
@@ -81,7 +84,7 @@ public class ChatCA extends UntypedActor {
     private enum NegotiationEndState {
         NOTANSWERED,
         ENDREQUEST,
-        RESTARTREQUEST,
+        RESTARTREQUEST
     }
 
     // *****************************************Control flags FIN*******************************************
@@ -127,7 +130,7 @@ public class ChatCA extends UntypedActor {
     }
 
     /**
-     * CONSTRUCTOR del ChatCA. Gestiona el control de una conversación privada
+     * CONSTRUCTOR del ChatCA. Gestiona el control de una conversación privada. Se llama desde el mkProps de forma transparente
      * @param host el usuario invitado
      * @param owner el usuario que envió la invitación
      * @param chatRequest modelo del ChatRequest de la invitación que dió paso al chat privado
@@ -192,8 +195,6 @@ public class ChatCA extends UntypedActor {
             out.write(error);
         }
     }
-    // Members of this room.
-    private Map<UserConnected, WebSocket.Out<JsonNode>> members = new HashMap<UserConnected, WebSocket.Out<JsonNode>>();
 
     public void onReceive(Object message) throws Exception {
         if(message instanceof Talk)  {
@@ -370,7 +371,7 @@ public class ChatCA extends UntypedActor {
         reputationFlag = false;
         initTimerConfig();
         //reinicio contadores
-        minutes = 0;
+        minutes = 0;//realmente no lo uso de momento, pero puede ser útil después
         turns = 0;
     }
 
@@ -430,15 +431,22 @@ public class ChatCA extends UntypedActor {
 
     // ********************************* methods to send messages *****************************************
 
-    // Send a Json event to all members
-    public void notifyAll(String type, String kind, String user, String text) {
+    /** Send a Json event to all members
+     * El formato JSON es el siguiente:
+     * @param type tipo de mensaje
+     * @param kind clase de mensaje (dentro de un type hay uno o varios kind)
+     * @param user usuario que manda el mensaje (username)
+     * @param info información asociada al mensaje
+     */
+    public void notifyAll(String type, String kind, String user, String info) {
         for(WebSocket.Out<JsonNode> channel: members.values()) {
             ObjectNode event = Json.newObject();
             event.put(JSON_TYPE, type);
             event.put(JSON_KIND, kind);
-            if(user!=null)
+            if(user!=null)//es nulo o puede ser nulo cuando es un mensaje de control
                 event.put(JSON_USER, user);
-            event.put(JSON_INFO, text);
+            if(info!=null)// es o puede ser nulo cuando es un mensaje de control
+                event.put(JSON_INFO, info);
 
             ArrayNode m = event.putArray("members");
             for(UserConnected u: members.keySet()) {

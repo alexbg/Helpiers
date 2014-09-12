@@ -168,6 +168,8 @@ public class ChatRoomController extends Controller {
         System.out.println(user.getUserDescription());
 
         final UserConnected userConnected = new UserConnected(user,topic,category);
+        userConnected.save();
+
 
         return new WebSocket<JsonNode>() {
 

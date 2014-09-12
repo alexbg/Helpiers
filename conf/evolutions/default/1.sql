@@ -64,6 +64,12 @@ create table user (
   constraint pk_user primary key (id))
 ;
 
+create table user_connected (
+  id                        bigint auto_increment not null,
+  USER_ID                   bigint,
+  constraint pk_user_connected primary key (id))
+;
+
 alter table chat add constraint fk_chat_userHost_1 foreign key (USERHOST_ID) references user (id) on delete restrict on update restrict;
 create index ix_chat_userHost_1 on chat (USERHOST_ID);
 alter table chat add constraint fk_chat_userOwner_2 foreign key (USEROWNER_ID) references user (id) on delete restrict on update restrict;
@@ -86,6 +92,8 @@ alter table topic add constraint fk_topic_category_10 foreign key (ID_CATEGORY) 
 create index ix_topic_category_10 on topic (ID_CATEGORY);
 alter table user add constraint fk_user_topic_11 foreign key (TOPIC_ID) references topic (id) on delete restrict on update restrict;
 create index ix_user_topic_11 on user (TOPIC_ID);
+alter table user_connected add constraint fk_user_connected_user_12 foreign key (USER_ID) references user (id) on delete restrict on update restrict;
+create index ix_user_connected_user_12 on user_connected (USER_ID);
 
 
 
@@ -104,6 +112,8 @@ drop table rating;
 drop table topic;
 
 drop table user;
+
+drop table user_connected;
 
 SET FOREIGN_KEY_CHECKS=1;
 

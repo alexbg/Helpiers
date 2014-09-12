@@ -183,6 +183,8 @@ public class WaitingRoomCA extends UntypedActor {
 
                     //Informo a los usuarios de que se va a eliminar el usuario
                     sendMessageToAll(message);
+                    //se elimina el UserConnected de la base de datos
+                    user.getUserConnected().delete();
 
                 }
             });
@@ -609,53 +611,6 @@ public class WaitingRoomCA extends UntypedActor {
         requestDb.remove(userOwner);
 
     }
-
-    public static WebSocket<JsonNode> chat(final UserConnected user_host, final UserConnected user_owner, final models.ChatRequest ChatReq) {
-        return new WebSocket<JsonNode>() {
-
-            // Called when the Websocket Handshake is done.
-            public void onReady(WebSocket.In<JsonNode> in, WebSocket.Out<JsonNode> out){
-
-                // Join the chat room.
-                try {
-                    ChatCA privateChat = new ChatCA(user_host, user_owner, ChatReq);
-                    PrivateChatsController.privateChats.add(privateChat);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-        };
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     // Permite detectar que error se ha producido
     static class Errors {
