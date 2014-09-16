@@ -34,20 +34,25 @@ public class PrivateChatsController extends Controller {
      * Handle the chat websocket.
      */
     public static WebSocket<JsonNode> chat() {
+        System.out.println("PrivateChatsController: entra en Chat()");
         final User user = User.getUserByEmail(session("email"));
-        final UserConnected userConnected = UserConnected.getUserConnectedByUser(user);
+        final UserConnected userConnected = user.getUserConnected();
         if(userConnected!=null){
+            System.out.println("PrivateChatsController tiene que hacer el Join");
             return new WebSocket<JsonNode>() {
                 // Called when the Websocket Handshake is done.
                 public void onReady(WebSocket.In<JsonNode> in, WebSocket.Out<JsonNode> out){
                     // Join the chat room.
                     try {
-                        privateChatsMap.get(userConnected).tell(new ChatCA.Join(userConnected, out), null);
+                        privateChatsMap.get(userConnected).tell(new ChatCA.Join(userConnected, out, in), privateChatsMap.get(userConnected));
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
                 }
             };
-        }else return null;
+        }else{
+            System.out.println("PrivateChatsController el userConnected es null");
+            return null;
+        }
     }
 }

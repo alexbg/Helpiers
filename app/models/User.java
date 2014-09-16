@@ -28,6 +28,9 @@ public class User extends Model {
     @OneToOne
     @JoinColumn(name = "TOPIC_ID")
     public Topic topic;
+    @OneToOne
+    @JoinColumn(name = "USERCONNECTED_ID")
+    public UserConnected userConnected;
 
 
     public List<Rating> RatingList;
@@ -48,6 +51,7 @@ public class User extends Model {
         this.bornDate = null;
         this.registerDate = null;
         this.topic = null;
+        this.userConnected = null;
     }
 
 
@@ -175,5 +179,11 @@ public class User extends Model {
             result = "";
         }
         return result;
+    }
+    public UserConnected getUserConnected() {
+        return userConnected;
+    }
+    public void setUserConnected(UserConnected userConnected) {
+        this.userConnected = userConnected;
     }
 }

@@ -1,4 +1,4 @@
-@(name: String)
+@(name: String)(minutes: Int)
 
 <!DOCTYPE html>
 <html>
@@ -49,7 +49,7 @@
                         </div>
                         <div class="center-text chatVerticalSection">
                             <h3>Tiempo restante</h3>
-                            <p class="timer"><strong>5 minutos 36 segundos</strong></p>
+                            <p class="timer"><strong><span id="timerNumberId">5</span> minutos</strong></p>
                         </div>
                         <div class="center-text chatVerticalSection">
                             <button type="button" class="btn btn-warning">Salir</button>
@@ -57,7 +57,7 @@
                         </div>
                     </div>
                 </div>
-                <script type="text/javascript" charset="utf-8" src="@routes.Application.chatRoomJs(name)"></script>
+                <script type="text/javascript" charset="utf-8" src="@routes.PrivateChatsController.chatJs(name)"></script>
             </div>
         </div>
     </body>

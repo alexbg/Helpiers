@@ -184,8 +184,8 @@ public class WaitingRoomCA extends UntypedActor {
                     //Informo a los usuarios de que se va a eliminar el usuario
                     sendMessageToAll(message);
                     //se elimina el UserConnected de la base de datos
-                    user.getUserConnected().delete();
-
+                    //UserConnected.find.byId(user.getUserConnected().getId()).delete();
+                    //System.out.println("Se ha eliminado al userConnected de la base de datos");
                 }
             });
 
@@ -326,36 +326,36 @@ public class WaitingRoomCA extends UntypedActor {
 
                 // Preparar la sala de chat
                 long idChatReq = requestDb.get(host);
-                System.out.println("HOST ID: " + host.getUser().getId());
+                System.out.println("Invitado ID: " + host.getUser().getId());
+                System.out.println("invitador ID: " + accept.getUser().getId());
                 System.out.println("ID DEL CHAT REQUEST: " + idChatReq);
                 //obtengo el models.ChatRequest para pasarlo al constructor de ChatCA
                 final models.ChatRequest db = models.ChatRequest.find.byId(requestDb.get(host));
 
-                //ChatCA chat = ChatCA.mkProps(accept.getUser(), host, db);
-
-                ActorRef privateChat = actorSystem.actorOf(ChatCA.mkProps(accept.getUser(), host, db));
+                //Iniciar el actor de la conversación
+                ActorRef privateChat = null;
+                privateChat = actorSystem.actorOf(ChatCA.mkProps(accept.getUser(), host, db));
                 //guardar en PrivateChatsController (en el mapa) la asociación de los dos UserConnected con la referencia del actor
+                if(PrivateChatsController.privateChatsMap == null){
+                    PrivateChatsController.privateChatsMap = new HashMap<UserConnected, ActorRef>();
+                    System.out.println("se ha creado el mapa porque no existia");
+                }
+                PrivateChatsController.privateChatsMap.put(host, privateChat);
+                PrivateChatsController.privateChatsMap.put(accept.getUser(), privateChat);
 
                 // Obtengo el out del usuario que inicio la peticion
                 WebSocket.Out<JsonNode> out = WaitingRoomCA.users.get(host);
+                // Obtengo el out del usuario que acepta la invitación
+                WebSocket.Out<JsonNode> out1 = WaitingRoomCA.users.get(accept.getUser());
                 // Envio un mensaje al que inicio la invitacion
                 ObjectNode message = Json.newObject();
                 message.put("type","acceptinvitation");
                 out.write(message);
-
                 //lo mismo con el usuario que acepta la invitación:
-                // Obtengo el out del usuario que acepta la invitación
-                WebSocket.Out<JsonNode> out1 = WaitingRoomCA.users.get(accept.getUser());
                 // Envio un mensaje
-                ObjectNode message1 = Json.newObject();
-                message.put("type","acceptinvitation");
-                out.write(message1);
-
-
-
+                out1.write(message);
 
                 // Actualizo la peticion en la base de datos. Esto va al final porque elimina el ChatRequest del mapa
-
                 updateRequest(host,accept.getUser(),new Date(), models.ChatRequest.Status.ACCEPTED);
             }
 

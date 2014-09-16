@@ -119,7 +119,6 @@ public class ChatRoomController extends Controller {
         Topic newTopic = null;
         Category category = null;
         User user = null;
-        UserConnected userConnected = null;
         if (topicForm.hasErrors()) {
             System.out.println("error en el formulario");
             return badRequest("An error has occurred");
@@ -169,6 +168,8 @@ public class ChatRoomController extends Controller {
 
         final UserConnected userConnected = new UserConnected(user,topic,category);
         userConnected.save();
+        user.setUserConnected(userConnected);
+        user.save();
 
 
         return new WebSocket<JsonNode>() {
@@ -183,18 +184,6 @@ public class ChatRoomController extends Controller {
 
         };
     }
-
-    // SOLO PARA PRUEBAS
-    /*public static Result prueba(){
-
-        User user = User.getUserByEmail(session("email"));
-        Topic topic = user.getTopic();
-        Category category = topic.getCategory();
-
-        UserConnected userConnected = new UserConnected(user,topic,category);
-
-        return ok(userConnected.getUser().getEmail());
-    }*/
 
     // Obtienes el js waitingRoom
     public static Result waiting(){

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
 import models.chat.ControlMessage;
+import play.Logger;
 import play.libs.Akka;
 import play.libs.F;
 import play.libs.Json;
@@ -26,7 +27,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 public class ChatCA extends UntypedActor {
 
     //tiempo de duración de un turno en milisegundos
-    public final static long TURN_TIME = 600000;
+    public final static long TURN_TIME = 4*60*1000;//(minutos)*(segundos/minuto)*(milisegundos/segundo)
 
     // ************ESPECIFICACION LOS NOMBRES DE MENSAJES *******************************
     public final static String JSON_TYPE = "type";
@@ -113,10 +114,6 @@ public class ChatCA extends UntypedActor {
         }
     }
     // **************************************Fin tareas **********************************************
-
-    // Default room.
-    private ActorRef privateRoom;
-
     /**
      * Create Props for an actor of this type.
       * @param host el usuario invitado
@@ -126,6 +123,7 @@ public class ChatCA extends UntypedActor {
      *         (e.g. calling `.withDispatcher()` on it)
      */
     public static Props mkProps(UserConnected host, UserConnected owner, ChatRequest chatRequest) {
+        System.out.println("Entra en mkProps");
         return Props.create(ChatCA.class, host, owner, chatRequest);
     }
 
@@ -143,7 +141,7 @@ public class ChatCA extends UntypedActor {
         chat.save();
         //running timer task as daemon thread (will be killed automatically when ChatCA finish his work)
         timer = new Timer(true);
-        //privateRoom = Akka.system().actorOf(Props.create(ChatCA.class));//esto no puede ir aqui
+        System.out.println("Se ha ejecutado el constructor ChatCA");
     }
 
     /**
@@ -151,31 +149,36 @@ public class ChatCA extends UntypedActor {
      */
     public void join(final UserConnected user, WebSocket.In<JsonNode> in, WebSocket.Out<JsonNode> out) throws Exception{
         // Send the Join message to the room
-        String result = (String) Await.result(ask(privateRoom, new Join(user, out), 1000), Duration.create(1, SECONDS));
-        if("OK".equals(result)) {
+        System.out.println("Se ha ejecutado el join en ChatCA");
+        //obtener el ActorRef correspondiente a ese UserConnected
+        final ActorRef actor = PrivateChatsController.privateChatsMap.get(user);
+        //String result = (String) Await.result(ask(actor, new Join(user, out), 1000), Duration.create(1, SECONDS));
+        //if("OK".equals(result)) {
+            Logger.of("ChatCA").info("Se espera recibir mensajes de los participantes");
 
             // ****************************For each event received on the socket **************************************
 
             in.onMessage(new F.Callback<JsonNode>() {
                 public void invoke(JsonNode event) {
 
+                    Logger.of("ChatCA").info(Json.stringify(event));
                     //si es un mensaje de texto (habla)
                     if(event.get(JSON_TYPE).asText().equals(JSON_TYPE_TALK)){
-                        privateRoom.tell(new Talk(user.getUser().getUsername(), event.get(JSON_INFO).asText()), null);
+                        actor.tell(new Talk(user.getUser().getUsername(), event.get(JSON_INFO).asText()), actor);
 
                     // Si es un mensaje de control: mirar que tipo de mensaje de control.
                     }else if(event.get(JSON_TYPE).asText().equals(JSON_TYPE_CONTROL)){
                         String kind = event.get(JSON_KIND).asText();
                         if(kind.equals(RESTART_REQUEST)){
-                            privateRoom.tell(new ControlMessage(user, ControlMessage.restartRequest, ""), null);
+                            actor.tell(new ControlMessage(user, ControlMessage.restartRequest, ""), actor);
                         }else if(kind.equals(FIN_REQUEST)){
-                            privateRoom.tell(new ControlMessage(user, ControlMessage.finRequest, ""), null);
+                            actor.tell(new ControlMessage(user, ControlMessage.finRequest, ""), actor);
                         }else if(kind.equals(FORCED_FIN)){
-                            privateRoom.tell(new ControlMessage(user, ControlMessage.forcedFin, ""), null);
+                            actor.tell(new ControlMessage(user, ControlMessage.forcedFin, ""), actor);
                         }else if(kind.equals(VOLUNTARY_TURN_END)){
-                            privateRoom.tell(new ControlMessage(user, ControlMessage.voluntaryTurnEnd, ""), null);
+                            actor.tell(new ControlMessage(user, ControlMessage.voluntaryTurnEnd, ""), actor);
                         }else if(kind.equals(REPUTATION_POINTS)){
-                            privateRoom.tell(new ControlMessage(user, ControlMessage.reputationPoints, event.get(JSON_INFO).asText()), null);
+                            actor.tell(new ControlMessage(user, ControlMessage.reputationPoints, event.get(JSON_INFO).asText()), actor);
                         }
                     }
                 }
@@ -184,16 +187,17 @@ public class ChatCA extends UntypedActor {
             in.onClose(new F.Callback0() {
                 public void invoke() {
                     // Send a Quit message to the room.
-                    privateRoom.tell(new Quit(user), null);
+                    actor.tell(new Quit(user), actor);
                 }
             });
-        } else {
+        /*} else {
+            Logger.of("ChatCA").info("El actor no ha respondido OK");
             // Cannot connect, create a Json error.
             ObjectNode error = Json.newObject();
             error.put("error", result);
             // Send the error to the socket.
             out.write(error);
-        }
+        }*/
     }
 
     public void onReceive(Object message) throws Exception {
@@ -207,22 +211,26 @@ public class ChatCA extends UntypedActor {
             // Received a Join message
             Join join = (Join)message;
             if(members.size()<2){//controlo que como máximo entren dos usuarios en el chat privado.
-                members.put(join.user, join.channel);
+                members.put(join.user, join.channelOut);
                 notifyAll(CONTROLMSG, JOIN, join.user.getUser().getUsername(), "has entered the room");
                 getSender().tell("OK", getSelf());
                 /*
-                 * SI no vale el constructor normal, hay que añadir a uno de los participantes como owner y otro
+                 * Hay que añadir a uno de los participantes como owner y otro
                  * como host. El primero en entrar en la sala (si el map tiene tamaño 1) es el usuario owner.
                  */
                 if(members.size() == 1){
                     ownerUser = join.user;
                     ownerNES = NegotiationEndState.NOTANSWERED;
+                    System.out.println("Se ha designado al usuario " + ownerUser.getUser().getUsername() + "como owner");
                 }else if(members.size() == 2){//si es el segundo del map, es el host
                     hostUser = join.user;
                     hostNES = NegotiationEndState.NOTANSWERED;
+                    System.out.println("Se ha designado al usuario " + hostUser.getUser().getUsername() + "como host");
                 }
-            }if(members.size() == 2) //Si hay dos participantes... Ya estamos todos! -> empieza el Chat
+                join(join.user, join.channelIn, join.channelOut);
+            }if(members.size() == 2){ //Si hay dos participantes... Ya estamos todos! -> empieza el Chat
                 startChat();
+            }
         }else if(message instanceof Quit)  {
             // Received a Quit message, RUDE exit!!
             Quit quit = (Quit)message;
@@ -308,10 +316,12 @@ public class ChatCA extends UntypedActor {
     // **************************************** MENSAJES **********************************************
     public static class Join {
         final UserConnected user;
-        final WebSocket.Out<JsonNode> channel;
-        public Join(UserConnected username, WebSocket.Out<JsonNode> channel) {
+        final WebSocket.Out<JsonNode> channelOut;
+        final WebSocket.In<JsonNode> channelIn;
+        public Join(UserConnected username, WebSocket.Out<JsonNode> channelOut, WebSocket.In<JsonNode> channelIn) {
             this.user = username;
-            this.channel = channel;
+            this.channelOut = channelOut;
+            this.channelIn = channelIn;
         }
     }
 
@@ -353,10 +363,11 @@ public class ChatCA extends UntypedActor {
         ttte = new TimerTaskTurnEnd();
         //Defino la programación de los plazos
         //execute task every 60 seconds
-        timer.scheduleAtFixedRate(ttme, 0, 60*1000);
+        timer.scheduleAtFixedRate(ttme, 60*1000, 60*1000);//2ºparámetro es un retardo de un minuto (para que no salte nada mas empezar)
         //execute task when user´s time is finished
-        timer.scheduleAtFixedRate(ttte, 5000, TURN_TIME);
+        timer.scheduleAtFixedRate(ttte, TURN_TIME, TURN_TIME);
         //execute task when conversation´s time is finished: cuando el contador de turnos llegue a dos
+        System.out.println("Se han configurado los timers");
     }
 
     /**
@@ -366,6 +377,7 @@ public class ChatCA extends UntypedActor {
      * Timers: se activan los timers de sus tareas programadas.
      */
     private void startChat(){
+        System.out.println("Se van a iniciar los timers");
         hostNES = NegotiationEndState.NOTANSWERED;
         ownerNES = NegotiationEndState.NOTANSWERED;
         reputationFlag = false;
@@ -462,6 +474,7 @@ public class ChatCA extends UntypedActor {
     private void notifyMinuteLess(){
         minutes++;
         notifyAll(CONTROLMSG, MINUTE_NOTIFY, null, "minuto menos...");
+        System.out.println("Se ha ejecutado la tarea notifyMinuteLess");
     }
 
     /**

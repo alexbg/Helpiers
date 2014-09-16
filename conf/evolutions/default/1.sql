@@ -60,6 +60,7 @@ create table user (
   born_date                 datetime,
   register_date             datetime,
   TOPIC_ID                  bigint,
+  USERCONNECTED_ID          bigint,
   constraint ck_user_sex check (sex in ('MALE','FEMALE','UNKNOWN')),
   constraint pk_user primary key (id))
 ;
@@ -92,8 +93,10 @@ alter table topic add constraint fk_topic_category_10 foreign key (ID_CATEGORY) 
 create index ix_topic_category_10 on topic (ID_CATEGORY);
 alter table user add constraint fk_user_topic_11 foreign key (TOPIC_ID) references topic (id) on delete restrict on update restrict;
 create index ix_user_topic_11 on user (TOPIC_ID);
-alter table user_connected add constraint fk_user_connected_user_12 foreign key (USER_ID) references user (id) on delete restrict on update restrict;
-create index ix_user_connected_user_12 on user_connected (USER_ID);
+alter table user add constraint fk_user_userConnected_12 foreign key (USERCONNECTED_ID) references user_connected (id) on delete restrict on update restrict;
+create index ix_user_userConnected_12 on user (USERCONNECTED_ID);
+alter table user_connected add constraint fk_user_connected_user_13 foreign key (USER_ID) references user (id) on delete restrict on update restrict;
+create index ix_user_connected_user_13 on user_connected (USER_ID);
 
 
 
