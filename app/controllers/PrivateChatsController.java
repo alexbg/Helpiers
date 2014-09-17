@@ -2,8 +2,6 @@ package controllers;
 
 import akka.actor.ActorRef;
 import com.fasterxml.jackson.databind.JsonNode;
-import controllers.actors.WaitingRoomCA;
-import models.ChatRoom;
 import models.User;
 import models.UserConnected;
 import play.mvc.Controller;
@@ -24,6 +22,7 @@ public class PrivateChatsController extends Controller {
 
     public static Result showChatView() {
         return ok(chatPrueba.render(User.getUserByEmail(session("email")).getUsername()));
+        //return ok();
     }
 
     public static Result chatJs(String username) {

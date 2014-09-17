@@ -67,6 +67,8 @@ public class ChatCA extends UntypedActor {
     private TimerTaskTurnEnd ttte;
     private NegotiationEndState ownerNES;
     private NegotiationEndState hostNES;
+    private String speaker;
+    private String listener;
 
     // Members of this room.
     private Map<UserConnected, WebSocket.Out<JsonNode>> members = new HashMap<UserConnected, WebSocket.Out<JsonNode>>();
@@ -222,10 +224,14 @@ public class ChatCA extends UntypedActor {
                     ownerUser = join.user;
                     ownerNES = NegotiationEndState.NOTANSWERED;
                     System.out.println("Se ha designado al usuario " + ownerUser.getUser().getUsername() + "como owner");
+                    //este usuario tendrá el primer turno
+                    speaker = join.user.getUser().getUsername();
                 }else if(members.size() == 2){//si es el segundo del map, es el host
                     hostUser = join.user;
                     hostNES = NegotiationEndState.NOTANSWERED;
                     System.out.println("Se ha designado al usuario " + hostUser.getUser().getUsername() + "como host");
+                    //este usuario tendrá el segundo turno
+                    listener = join.user.getUser().getUsername();
                 }
                 join(join.user, join.channelIn, join.channelOut);
             }if(members.size() == 2){ //Si hay dos participantes... Ya estamos todos! -> empieza el Chat
@@ -250,8 +256,10 @@ public class ChatCA extends UntypedActor {
                 case ControlMessage.restartRequest:
                     if(msg.getUserMsOrg().getUser().getUsername().equals(ownerUser.getUser().getUsername())){
                         ownerNES = NegotiationEndState.RESTARTREQUEST;
+                        Logger.of("ChatCA").info("el owner vota restart");
                     }else if(msg.getUserMsOrg().getUser().getUsername().equals(hostUser.getUser().getUsername())){
                         hostNES = NegotiationEndState.RESTARTREQUEST;
+                        Logger.of("ChatCA").info("el host vota restart");
                     }
                     if(isBothUserAnswer()){//si los dos usuarios han contestado algo: hay que mandar respuesta
                         resolveNegotiationEnd();
@@ -363,9 +371,9 @@ public class ChatCA extends UntypedActor {
         ttte = new TimerTaskTurnEnd();
         //Defino la programación de los plazos
         //execute task every 60 seconds
-        timer.scheduleAtFixedRate(ttme, 60*1000, 60*1000);//2ºparámetro es un retardo de un minuto (para que no salte nada mas empezar)
+        timer.scheduleAtFixedRate(ttme, 0, 60*1000);//2ºparámetro es un retardo de un minuto (para que no salte nada mas empezar)
         //execute task when user´s time is finished
-        timer.scheduleAtFixedRate(ttte, TURN_TIME, TURN_TIME);
+        timer.scheduleAtFixedRate(ttte, 0, TURN_TIME);
         //execute task when conversation´s time is finished: cuando el contador de turnos llegue a dos
         System.out.println("Se han configurado los timers");
     }
@@ -385,6 +393,10 @@ public class ChatCA extends UntypedActor {
         //reinicio contadores
         minutes = 0;//realmente no lo uso de momento, pero puede ser útil después
         turns = 0;
+        //establezco quien habla
+        speaker = hostUser.getUser().getUsername();
+        listener = ownerUser.getUser().getUsername();
+
     }
 
     /**
@@ -433,10 +445,12 @@ public class ChatCA extends UntypedActor {
             //envío mensaje FINACK
             notifyAll(CONTROLMSG, FIN_ACK, "", "");//da paso a la ronda de puntuaciones
             reputationFlag = true;
+            Logger.of("ChatCA").info("Hay final con acuerdo");
         }else{//no hay acuerdo. Uno quiere empezar una ronda y el otro no quiere
             //envío mensaje FINNACK
             notifyAll(CONTROLMSG, FIN_NACK, "", "");
             //hay que empezar otra ronda; reiniciar valores
+            Logger.of("ChatCA").info("Hay que reiniciar el chat");
             startChat();
         }
     }
@@ -473,7 +487,7 @@ public class ChatCA extends UntypedActor {
      */
     private void notifyMinuteLess(){
         minutes++;
-        notifyAll(CONTROLMSG, MINUTE_NOTIFY, null, "minuto menos...");
+        notifyAll(CONTROLMSG, MINUTE_NOTIFY, null, Integer.toString(minutes) + " de " + Long.toString(TURN_TIME/(60*1000)) + " minutos");
         System.out.println("Se ha ejecutado la tarea notifyMinuteLess");
     }
 
@@ -482,10 +496,15 @@ public class ChatCA extends UntypedActor {
      */
     private void notifyTurnEnd(){
         turns++;
-        if(turns > 1){
+        minutes = 0;
+        if(turns > 2){
             notifyRoundEnd();
         }else{
-            notifyAll(CONTROLMSG, TURN_NOTIFY, null, "¡Cambio de turno!");
+            //cambio el speaker por el listener
+            String aux = speaker;
+            speaker = listener;
+            listener = aux;
+            notifyAll(CONTROLMSG, TURN_NOTIFY, "System", speaker);//ultimo parametro indica quien habla
         }
     }
     /**
@@ -495,7 +514,7 @@ public class ChatCA extends UntypedActor {
     private void notifyRoundEnd(){
         timer.cancel();//paro los timers
         timer.purge();//elimino las tareas canceladas
-        notifyAll(CONTROLMSG, ROUND_NOTIFY, null, "Final de la conversación");
+        notifyAll(CONTROLMSG, ROUND_NOTIFY, "System", "Final de la conversación");
     }
 
     // *******************************************************************************************************
