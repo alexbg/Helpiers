@@ -10,6 +10,12 @@ $(function() {
             '<div class="col-xs-6"><button class="btn btn-primary restartButton">Si</button></div>' +
             '<div class="col-xs-6"><button class="btn btn-primary noRestartButton">No</button></div>'
         '</div>';
+    var pointsTemplate =
+        '<div>' +
+            '<p><h3>¡Otorga puntos por la ayuda recibida!</h3></p>' +
+            '<input type="number" name="quantity" min="1" max="5">' +
+            '<button class="btn btn-primary sendRepPoints">Enviar!</button>' +
+        '</div>';
 
 
     var receiveEvent = function(event) {
@@ -28,7 +34,6 @@ $(function() {
         //si es un mensaje de charla
         if(type == "talk"){
             createMessage(data);
-            insertRestartForm();
         }else if(type == "control"){
             var kind = data.kind;
             if(kind == "minute_notify"){
@@ -43,6 +48,9 @@ $(function() {
             }else if(kind == "fin_nack"){
                 data.info = "El Chat empieza de nuevo";
                 createMessage(data);
+            }else if(kind == "fin_ack"){
+                createMessage(data);
+                insertReputationForm();
             }
         }
     }
@@ -79,7 +87,16 @@ $(function() {
         $(".noRestartButton").click(function(){
             sendFinRequest();
         });
+    }
 
+    function insertReputationForm(){
+        var el = pointsTemplate;
+        var points = 0;
+        $('#messages').append(el);
+        $(".sendRepPoints").click(function(){
+            points = $(this).sibling("input").val();
+            sendReputationPoints(points);
+        });
     }
 
     var sendMessage = function() {
@@ -98,6 +115,12 @@ $(function() {
     var sendFinRequest = function() {
         chatSocket.send(JSON.stringify(
             {type:"control", kind: "fin_request"}
+        ))
+    }
+
+    var sendReputationPoints = function(num){
+        chatSocket.send(JSON.stringify(
+            {type:"control", kind: "reputation_points", info: "" + num}//da problemas por ser un numero??
         ))
     }
 

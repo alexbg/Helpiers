@@ -26,8 +26,9 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 public class ChatCA extends UntypedActor {
 
+    public final static long MINUTES = 1;
     //tiempo de duración de un turno en milisegundos
-    public final static long TURN_TIME = 4*60*1000;//(minutos)*(segundos/minuto)*(milisegundos/segundo)
+    public final static long TURN_TIME = MINUTES*60*1000;//(minutos)*(segundos/minuto)*(milisegundos/segundo)
 
     // ************ESPECIFICACION LOS NOMBRES DE MENSAJES *******************************
     public final static String JSON_TYPE = "type";
@@ -109,12 +110,6 @@ public class ChatCA extends UntypedActor {
             notifyTurnEnd();
         }
     }
-    private class TimerTaskRoundEnd extends TimerTask{
-        @Override
-        public void run() {
-            notifyRoundEnd();
-        }
-    }
     // **************************************Fin tareas **********************************************
     /**
      * Create Props for an actor of this type.
@@ -141,8 +136,6 @@ public class ChatCA extends UntypedActor {
         //creo un nuevo registro de chat, que se almacena en la BD
         chat = new Chat(host.getUser(), owner.getUser(), chatRequest, new Date());
         chat.save();
-        //running timer task as daemon thread (will be killed automatically when ChatCA finish his work)
-        timer = new Timer(true);
         System.out.println("Se ha ejecutado el constructor ChatCA");
     }
 
@@ -262,6 +255,7 @@ public class ChatCA extends UntypedActor {
                         Logger.of("ChatCA").info("el host vota restart");
                     }
                     if(isBothUserAnswer()){//si los dos usuarios han contestado algo: hay que mandar respuesta
+                        Logger.of("ChatCA").info("Los dos usuarios han contestado");
                         resolveNegotiationEnd();
                     }
                     break;
@@ -270,10 +264,10 @@ public class ChatCA extends UntypedActor {
                  * Se envía una vez acabado el tiempo de la ronda normal de conversación.
                  */
                 case ControlMessage.finRequest:
-                    if(msg.getUserMsOrg().getUser().getUsername(). equals(ownerUser.getUser().getUsername())){
+                    if(msg.getUserMsOrg().getUser().getUsername().equals(ownerUser.getUser().getUsername())){
                         ownerNES = NegotiationEndState.ENDREQUEST;
-                    }else if(msg.getUserMsOrg().getUser().getUsername(). equals(hostUser.getUser().getUsername())){
-                        ownerNES = NegotiationEndState.ENDREQUEST;
+                    }else if(msg.getUserMsOrg().getUser().getUsername().equals(hostUser.getUser().getUsername())){
+                        hostNES = NegotiationEndState.ENDREQUEST;
                     }
                     if(isBothUserAnswer()){//si los dos usuarios han contestado algo: hay que mandar respuesta
                         resolveNegotiationEnd();
@@ -366,6 +360,8 @@ public class ChatCA extends UntypedActor {
      * Initial Schedule configuration; Some tasks will be executed to control timing
      */
     private void initTimerConfig(){
+        //running timer task as daemon thread (will be killed automatically when ChatCA finish his work)
+        timer = new Timer(true);
         //inicio los TimerTask
         ttme = new TimerTaskMinuteEnd();
         ttte = new TimerTaskTurnEnd();
@@ -411,8 +407,10 @@ public class ChatCA extends UntypedActor {
             if(ownerNES.name().equals(st)  && hostNES.name().equals(st)){
                 //agreement reached -> exit
                 res = true;
+                Logger.of("ChatCA").info("Acuerdo alcanzado");
             }else{
                 //disagreement -> restart conversation
+                Logger.of("ChatCA.isAgreedEnd").info("restart required");
                 res = false;
             }
         }else{
@@ -443,9 +441,8 @@ public class ChatCA extends UntypedActor {
     private void resolveNegotiationEnd(){
         if(isAgreedEnd()){//Es un final de mutuo acuerdo.
             //envío mensaje FINACK
-            notifyAll(CONTROLMSG, FIN_ACK, "", "");//da paso a la ronda de puntuaciones
+            notifyAll(CONTROLMSG, FIN_ACK, "System", "Paso a la ronda de puntuaciones");//da paso a la ronda de puntuaciones
             reputationFlag = true;
-            Logger.of("ChatCA").info("Hay final con acuerdo");
         }else{//no hay acuerdo. Uno quiere empezar una ronda y el otro no quiere
             //envío mensaje FINNACK
             notifyAll(CONTROLMSG, FIN_NACK, "", "");
@@ -513,7 +510,7 @@ public class ChatCA extends UntypedActor {
      */
     private void notifyRoundEnd(){
         timer.cancel();//paro los timers
-        timer.purge();//elimino las tareas canceladas
+        //timer.purge();//elimino las tareas canceladas
         notifyAll(CONTROLMSG, ROUND_NOTIFY, "System", "Final de la conversación");
     }
 
