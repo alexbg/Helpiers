@@ -30,8 +30,9 @@ public class Rating extends Model{
 
     public static Finder<Long, Rating> find = new Finder<Long,Rating>(Long.class, Rating.class);
 
-    public Rating(User user, Category category, Integer value) {
+    public Rating(User user, Chat chat, Category category, Integer value) {
         this.user = user;
+        this.chat = chat;
         this.category = category;
         this.value = value;
         this.creationDate = new Date();

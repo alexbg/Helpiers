@@ -299,7 +299,11 @@ public class ChatCA extends UntypedActor {
                         int points = Integer.parseInt(msg.getInfo());
                         if(points>0 && points<=5){
                             //crear clase Rating y meter registro en la BD
-                            Rating rating =  new Rating(msg.getUserMsOrg().getUser(), msg.getUserMsOrg().getCategory(), points);
+
+                            //ATENCIÓN: Esto me chirria un poco... el UserConnected no está bien hecho en base de datos y le falta el topic y la categoría,
+                            // así que saco la categoria del topic y el topic del user
+                            Category category = msg.getUserMsOrg().getUser().getTopic().getCategory();
+                            Rating rating =  new Rating(msg.getUserMsOrg().getUser(), chat, category, points);
                             //eliminarle del Chat. Se termina la conversación.
                             members.remove(msg.getUserMsOrg());
                            // notifyAll("control", "quit", msg.getUserMsOrg().getUser().getUsername(), "has left the room");
@@ -407,10 +411,9 @@ public class ChatCA extends UntypedActor {
             if(ownerNES.name().equals(st)  && hostNES.name().equals(st)){
                 //agreement reached -> exit
                 res = true;
-                Logger.of("ChatCA").info("Acuerdo alcanzado");
+                chat.setEndTime(new Date());
             }else{
                 //disagreement -> restart conversation
-                Logger.of("ChatCA.isAgreedEnd").info("restart required");
                 res = false;
             }
         }else{

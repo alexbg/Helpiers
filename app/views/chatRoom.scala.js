@@ -13,7 +13,7 @@ $(function() {
     var pointsTemplate =
         '<div>' +
             '<p><h3>¡Otorga puntos por la ayuda recibida!</h3></p>' +
-            '<input type="number" name="quantity" min="1" max="5">' +
+            '<input type="number" name="quantity" id="repPointsInput" min="1" max="5">' +
             '<button class="btn btn-primary sendRepPoints">Enviar!</button>' +
         '</div>';
 
@@ -94,7 +94,8 @@ $(function() {
         var points = 0;
         $('#messages').append(el);
         $(".sendRepPoints").click(function(){
-            points = $(this).sibling("input").val();
+            points = $("#repPointsInput").val();
+            console.log("Puntos enviados: " + points);
             sendReputationPoints(points);
         });
     }
