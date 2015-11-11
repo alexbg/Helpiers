@@ -1,4 +1,14 @@
-This is your new Play application
+Helpiers Project
 =================================
+¿Qué es Helpiers?
 
-This file will be packaged with your application, when using `activator dist`.
+Helpiers es una red social donde podrás encontrar gente con la que hablar de tus problemas y para ofrecer tu sabiduría a los demás.
+
+Hablarás con gente a través de un chat por turnos:
+  1º Turno: cuenta tu problema y recibe consejo
+  2º Truno: Se cambian los roles y ahora eres tú quien debe ayudar a la persona que te ayudó a tí antes.
+
+Al finalizar la conversación podrás puntuar a la persona con la que has hablado. De esta forma podrás saber si alguien es bueno ayudando a los demás o no, gracias a la puntuación que le dieron los demás usuarios
+
+=================================
+Este proyecto no surgió con fines lucrativos. Eres libre de contribuir a Helpiers si estás interesado/a:)
